@@ -24,7 +24,7 @@ const Model = () => {
             width: 0.4,
             height: 0.5,
             background: new THREE.Color(0.5, 0.5, 0.7),
-            eye: [0, 0, -5],
+            eye: { x: 0, y: 0, z: -5 },
             up: [1, 0, 0],
             fov: 45,
             updateCamera: function (camera, scene) {
@@ -39,7 +39,7 @@ const Model = () => {
             width: 0.4,
             height: 0.5,
             background: new THREE.Color(0.7, 0.5, 0.5),
-            eye: [0, 0, 5],
+            eye: { x: 0, y: 0, z: 5 },
             up: [1, 0, 0],
             fov: 45,
             updateCamera: function (camera, scene) {
@@ -52,7 +52,7 @@ const Model = () => {
             width: 0.5,
             height: 0.5,
             background: new THREE.Color(0.5, 0.7, 0.7),
-            eye: [3, 0, 3],
+            eye: { x: 3, y: 0, z: 3 },
             up: [0, 1, 0],
             fov: 60,
             updateCamera: function (camera, scene) {
@@ -68,7 +68,7 @@ const Model = () => {
         const view = value
 
         const camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000)
-        camera.position.fromArray(view.eye)
+        camera.position.fromArray([view.eye.x, view.eye.y, view.eye.z])
         camera.up.fromArray(view.up)
         view.camera = camera
 
@@ -76,10 +76,16 @@ const Model = () => {
         gui.folders[index]
             .add(camera, 'fov')
             .min(0).max(200).step(1)
-
+        gui.folders[index]
+            .add(camera.position, 'x')
+            .min(-100).max(100).step(0.5)
+        gui.folders[index]
+            .add(camera.position, 'y')
+            .min(-100).max(100).step(0.5)
         gui.folders[index]
             .add(camera.position, 'z')
             .min(-100).max(100).step(0.5)
+
     }
 
     scene = new THREE.Scene()
@@ -239,6 +245,7 @@ const Model = () => {
         gui.folders[index]
             .add(views[key], 'height')
             .min(0).max(1).step(0.0001)
+        // .onChange()
     }
 
     const bg = { blackBackground: false }
