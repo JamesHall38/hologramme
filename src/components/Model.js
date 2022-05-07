@@ -84,17 +84,20 @@ const Model = () => {
 
     scene = new THREE.Scene()
     const cubeTextureLoader = new THREE.CubeTextureLoader()
+    let envIndex
 
     const getEnvMap = (envNum) => {
+        envIndex = envNum
         const environmentMap = cubeTextureLoader.load([
             `/environmentMaps/${envNum}/px.jpg`,
             `/environmentMaps/${envNum}/nx.jpg`,
-            `/environmentMaps/${envNum}/py.jpg`,
             `/environmentMaps/${envNum}/ny.jpg`,
-            `/environmentMaps/${envNum}/pz.jpg`,
-            `/environmentMaps/${envNum}/nz.jpg`
+            `/environmentMaps/${envNum}/py.jpg`,
+            `/environmentMaps/${envNum}/nz.jpg`,
+            `/environmentMaps/${envNum}/pz.jpg`
         ])
         environmentMap.encoding = THREE.sRGBEncoding
+        environmentMap.userData.name = envNum
         return environmentMap
     }
 
@@ -107,6 +110,10 @@ const Model = () => {
         1: getEnvMap(1),
         2: getEnvMap(2),
         3: getEnvMap(3),
+    }).onChange((test) => {
+        envIndex = test.userData.name
+        if (!bg.blackBackground)
+            scene.background = getEnvMap(envIndex)
     })
 
     const updateAllMaterials = () => {
@@ -237,7 +244,10 @@ const Model = () => {
     const bg = { blackBackground: false }
     gui.add(bg, 'blackBackground')
         .onChange(() => {
-            scene.background = new THREE.Color(0, 0, 0)
+            if (bg.blackBackground)
+                scene.background = new THREE.Color(0, 0, 0)
+            else
+                scene.background = getEnvMap(envIndex)
         })
     gui.folders[4].add(views.top, 'bottom')
         .min(0).max(1).step(0.001)
