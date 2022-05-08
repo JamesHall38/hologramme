@@ -20,7 +20,7 @@ const Model = () => {
     const views = {
         right: {
             left: 0.6,
-            bottom: 0,
+            bottom: 0.5,
             width: 0.4,
             height: 0.5,
             background: new THREE.Color(0.5, 0.5, 0.7),
@@ -35,7 +35,7 @@ const Model = () => {
         },
         left: {
             left: 0,
-            bottom: 0,
+            bottom: 0.5,
             width: 0.4,
             height: 0.5,
             background: new THREE.Color(0.7, 0.5, 0.5),
@@ -48,7 +48,7 @@ const Model = () => {
         },
         top: {
             left: 0.25,
-            bottom: 0.5,
+            bottom: 0,
             width: 0.5,
             height: 0.5,
             background: new THREE.Color(0.5, 0.7, 0.7),
@@ -97,10 +97,10 @@ const Model = () => {
         const environmentMap = cubeTextureLoader.load([
             `/environmentMaps/${envNum}/px.jpg`,
             `/environmentMaps/${envNum}/nx.jpg`,
-            `/environmentMaps/${envNum}/ny.jpg`,
             `/environmentMaps/${envNum}/py.jpg`,
-            `/environmentMaps/${envNum}/nz.jpg`,
-            `/environmentMaps/${envNum}/pz.jpg`
+            `/environmentMaps/${envNum}/ny.jpg`,
+            `/environmentMaps/${envNum}/pz.jpg`,
+            `/environmentMaps/${envNum}/nz.jpg`
         ])
         environmentMap.encoding = THREE.sRGBEncoding
         environmentMap.userData.name = envNum
@@ -142,7 +142,7 @@ const Model = () => {
             debugObject.model,
             (gltf) => {
                 const model = gltf.scene
-                model.rotation.x = -Math.PI
+                // model.rotation.x = -Math.PI
                 model.visible = true
                 const borderBox = new THREE.Box3().setFromObject(model)
                 const center = borderBox.getCenter(new THREE.Vector3())
@@ -245,7 +245,9 @@ const Model = () => {
         gui.folders[index]
             .add(views[key], 'height')
             .min(0).max(1).step(0.0001)
-        // .onChange()
+        gui.folders[index]
+            .add(views.top, 'bottom')
+            .min(0).max(1).step(0.001)
     }
 
     const bg = { blackBackground: false }
@@ -256,8 +258,6 @@ const Model = () => {
             else
                 scene.background = getEnvMap(envIndex)
         })
-    gui.folders[4].add(views.top, 'bottom')
-        .min(0).max(1).step(0.001)
 
     function updateSize() {
         if (windowWidth !== window.innerWidth || windowHeight !== window.innerHeight) {
