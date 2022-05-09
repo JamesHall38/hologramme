@@ -12,7 +12,7 @@ function Nav() {
         <div className='nav'>
             <Link onClick={refreshPage} id='gui' to="/">Import</Link>
             <Link onClick={refreshPage} id='gui' to="/meka3d">Meka3D</Link>
-            <Link onClick={refreshPage} id='gui' to="/meta-adventure">Meta Adventure</Link>
+            <Link onClick={refreshPage} id='gui' to="/meta-adventures">Meta Adventure</Link>
             <Link onClick={refreshPage} id='gui' to="/metakonz">Meta Konz</Link>
             <Link onClick={refreshPage} id='gui' to="/metalegends">Meta Legends</Link>
             <Link onClick={refreshPage} id='gui' to="/uaf">UAF</Link>
