@@ -30,12 +30,11 @@ export default class LoadModel {
         })
 
         this.resources.on('ready', () => {
-            this.resource = { re: this.resources.items['METAKONZModel'] }
+            this.resource = { re: this.resources.items['foxModel'] }
             this.setModel()
 
             this.debug.add(this.resource, 're', {
-                METAKONZ: this.resources.items['METAKONZModel'],
-                FLAYED: this.resources.items['FLAYEDModel'],
+                PixelMan: this.resources.items['pixelManModel'],
                 Fox: this.resources.items['foxModel'],
             })
                 .onFinishChange(() => {

@@ -5,13 +5,8 @@ export default [
         path: '/Fox.glb'
     },
     {
-        name: 'METAKONZModel',
+        name: 'pixelManModel',
         type: 'gltfModel',
-        path: '/METAKONZ.glb'
-    },
-    {
-        name: 'FLAYEDModel',
-        type: 'gltfModel',
-        path: '/FLAYED.glb'
+        path: '/pixelMan.glb'
     }
 ]
