@@ -7,7 +7,7 @@ import Camera from './Camera.js'
 import Renderer from './Renderer.js'
 import Resources from './Utils/Resources.js'
 
-import sources from './sources.js'
+// import sources from './sources.js'
 import LoadModel from './LoadModel.js'
 import Environment from './Environment.js'
 import EventEmitter from './Utils/EventEmitter.js'
@@ -15,10 +15,15 @@ import EventEmitter from './Utils/EventEmitter.js'
 let instance = null
 
 export default class Experience extends EventEmitter {
-    constructor() {
+    constructor(_source) {
         super()
 
+        this.source = _source
+
+        console.log(this.source)
+
         this.files = null
+        // this.source = null
 
         // Singleton
         if (instance) {
@@ -36,12 +41,13 @@ export default class Experience extends EventEmitter {
         this.sizes = new Sizes()
         this.time = new Time()
         this.scene = new THREE.Scene()
-        this.resources = new Resources(sources)
+        this.resources = new Resources(this.source)
         this.camera = new Camera()
         this.renderer = new Renderer()
         this.environment = new Environment()
         this.loadModel = new LoadModel()
 
+        console.log(this.resources)
 
         this.rotate = true
         this.debug.add(this, 'rotate')

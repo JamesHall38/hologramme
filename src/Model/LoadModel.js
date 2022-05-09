@@ -10,6 +10,7 @@ export default class LoadModel {
         this.resources = this.experience.resources
         this.time = this.experience.time
         this.debug = this.experience.debug
+        console.log(this.resources)
 
         this.importedLoaded = false
 
@@ -30,23 +31,26 @@ export default class LoadModel {
         })
 
         this.resources.on('ready', () => {
-            this.resource = { re: this.resources.items['foxModel'] }
+            // this.resource = { re: this.resources.items['foxModel'] }
+            console.log(this.experience.source[0].name)
+            this.resource = { re: this.resources.items[this.experience.source[0].name] }
+            console.log(this.resource.re)
             this.setModel()
 
-            this.debug.add(this.resource, 're', {
-                PixelMan: this.resources.items['pixelManModel'],
-                Fox: this.resources.items['foxModel'],
-            })
-                .onFinishChange(() => {
-                    this.scene.children.forEach(child => {
-                        if (child.type === 'Group')
-                            child.children[0].visible = false
-                    })
-                    if (this.debugFolder)
-                        this.debugFolder.destroy()
+            // this.debug.add(this.resource, 're', {
+            //     PixelMan: this.resources.items['pixelManModel'],
+            //     Fox: this.resources.items['foxModel'],
+            // })
+            //     .onFinishChange(() => {
+            //         this.scene.children.forEach(child => {
+            //             if (child.type === 'Group')
+            //                 child.children[0].visible = false
+            //         })
+            //         if (this.debugFolder)
+            //             this.debugFolder.destroy()
 
-                    this.setModel()
-                })
+            //         this.setModel()
+            //     })
         })
     }
 
@@ -76,10 +80,6 @@ export default class LoadModel {
                 child.receiveShadow = true
             }
         })
-
-        this.model.position.x = 0
-        this.model.position.y = -1.5
-        this.model.position.z = 0
 
         this.setAnimation()
     }

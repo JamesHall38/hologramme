@@ -31,7 +31,7 @@ export default class Environment {
         this.sunLight.shadow.camera.far = 15
         this.sunLight.shadow.mapSize.set(1024, 1024)
         this.sunLight.shadow.normalBias = 0.05
-        this.sunLight.position.set(0, 3, -5)
+        this.sunLight.position.set(-5, 3, -5)
         this.scene.add(this.sunLight)
 
         this.sunLight2 = new THREE.DirectionalLight('#ffffff', 3)
@@ -39,37 +39,38 @@ export default class Environment {
         this.sunLight2.shadow.camera.far = 15
         this.sunLight2.shadow.mapSize.set(1024, 1024)
         this.sunLight2.shadow.normalBias = 0.05
-        this.sunLight2.position.set(0, 3, -5)
+        this.sunLight2.position.set(5, 3, 5)
         this.scene.add(this.sunLight2)
 
 
         for (let i = 0; i < 2; i++) {
 
             const folder = i === 0 ? this.light1Folder : this.light2Folder
+            const sunLight = i === 0 ? this.sunLight : this.sunLight2
             // Debug
             folder
-                .add(this.sunLight, 'intensity')
+                .add(sunLight, 'intensity')
                 .name('sunLightIntensity')
                 .min(0)
                 .max(10)
                 .step(0.001)
 
             folder
-                .add(this.sunLight.position, 'x')
+                .add(sunLight.position, 'x')
                 .name('sunLightX')
                 .min(- 5)
                 .max(5)
                 .step(0.001)
 
             folder
-                .add(this.sunLight.position, 'y')
+                .add(sunLight.position, 'y')
                 .name('sunLightY')
                 .min(- 5)
                 .max(5)
                 .step(0.001)
 
             folder
-                .add(this.sunLight.position, 'z')
+                .add(sunLight.position, 'z')
                 .name('sunLightZ')
                 .min(- 5)
                 .max(5)
