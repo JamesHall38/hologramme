@@ -55,9 +55,9 @@ function App() {
                 path: '/Meka3D.glb'
               }
             ]} />}></Route>
-          <Route path="/meta-adventure" element={<Model files={files} setFiles={setFiles} source={[
+          <Route path="/meta-adventures" element={<Model files={files} setFiles={setFiles} source={[
             {
-              name: 'metaadventure',
+              name: 'metaadventures',
               type: 'gltfModel',
               path: '/META_ADVENTURES.glb'
             }
