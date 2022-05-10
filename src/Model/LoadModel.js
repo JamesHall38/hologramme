@@ -10,7 +10,12 @@ export default class LoadModel {
         this.resources = this.experience.resources
         this.time = this.experience.time
         this.debug = this.experience.debug
-        console.log(this.resources)
+
+        this.Test = this.debug.addFolder('Test')
+        const bebi = document.getElementById('test')
+        console.log(bebi)
+        // this.Test.add(bebi).name('value')
+        this.debugModelFolder = this.debug.addFolder('Model').close()
 
         this.importedLoaded = false
 
@@ -32,9 +37,7 @@ export default class LoadModel {
 
         this.resources.on('ready', () => {
             // this.resource = { re: this.resources.items['foxModel'] }
-            console.log(this.experience.source[0].name)
             this.resource = { re: this.resources.items[this.experience.source[0].name] }
-            console.log(this.resource.re)
             this.setModel()
 
             // this.debug.add(this.resource, 're', {
@@ -81,17 +84,48 @@ export default class LoadModel {
             }
         })
 
+        this.debugObject = {
+            scale: 1,
+            rotation: 0,
+        }
+
+        this.debugModelFolder.add(this.debugObject, 'scale')
+            .min(0)
+            .max(2)
+            .name('scale')
+            .onChange(() => {
+                this.model.scale.set(this.debugObject.scale, this.debugObject.scale, this.debugObject.scale)
+            })
+        this.debugModelFolder.add(this.debugObject, 'rotation')
+            .min(-Math.PI)
+            .max(Math.PI)
+            .name('rotation')
+            .onChange(() => {
+                this.model.rotation.y = this.debugObject.rotation
+            }
+            )
+        this.debugModelFolder.add(this.model.position, 'x')
+            .min(-10)
+            .max(10)
+            .name('positionX')
+        this.debugModelFolder.add(this.model.position, 'y')
+            .min(-10)
+            .max(10)
+            .name('positionY')
+        this.debugModelFolder.add(this.model.position, 'z')
+            .min(-10)
+            .max(10)
+            .name('positionZ')
+
         this.setAnimation()
     }
 
     setAnimation() {
-        console.log(this.resource.re.animations)
         if (this.resource.re.animations.length > 0) {
             this.animation = {}
 
             // Mixer
             this.animation.mixer = new THREE.AnimationMixer(this.model)
-
 
             if (this.debugFolder)
                 this.debugFolder.destroy()
@@ -110,7 +144,7 @@ export default class LoadModel {
             // Play the action
             this.animation.play = (name) => {
                 const newAction = this.animation.actions[name]
-                const oldAction = this.animation.actions.current
+                // const oldAction = this.animation.actions.current
 
                 newAction.reset()
                 newAction.play()

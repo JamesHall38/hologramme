@@ -45,6 +45,10 @@ export default class Camera {
 
         // Debug
         this.debugFolder = this.debug.addFolder('Cameras').close()
+        this.rightFolder = this.debugFolder.addFolder('Right').close()
+        this.leftFolder = this.debugFolder.addFolder('Left').close()
+        this.topFolder = this.debugFolder.addFolder('Top').close()
+
 
         this.setInstance()
 
@@ -63,85 +67,39 @@ export default class Camera {
         this.left.up.fromArray(views.left.up)
         this.top.up.fromArray(views.top.up)
 
-        // Debug
-        this.debugFolder
-            .add(this.right, 'fov')
-            // .name('envMapIntensity')
-            .min(0)
-            .max(200)
-            .step(1)
-        this.debugFolder
-            .add(this.right.position, 'x')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        this.debugFolder
-            .add(this.right.position, 'y')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        this.debugFolder
-            .add(this.right.position, 'z')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
 
+        for (let i = 0; i < 3; i++) {
 
-        this.debugFolder
-            .add(this.left, 'fov')
-            // .name('envMapIntensity')
-            .min(0)
-            .max(200)
-            .step(1)
-        this.debugFolder
-            .add(this.left.position, 'x')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        this.debugFolder
-            .add(this.left.position, 'y')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        this.debugFolder
-            .add(this.left.position, 'z')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
+            const folder = i === 0 ? this.rightFolder : i === 1 ? this.leftFolder : this.topFolder
+            const camera = i === 0 ? this.right : i === 1 ? this.left : this.top
 
+            // Debug
+            folder
+                .add(camera, 'fov')
+                // .name('envMapIntensity')
+                .min(0)
+                .max(200)
+                .step(1)
+            folder
+                .add(camera.position, 'x')
+                // .name('envMapIntensity')
+                .min(-100)
+                .max(100)
+                .step(0.5)
+            folder
+                .add(camera.position, 'y')
+                // .name('envMapIntensity')
+                .min(-100)
+                .max(100)
+                .step(0.5)
+            folder
+                .add(camera.position, 'z')
+                // .name('envMapIntensity')
+                .min(-100)
+                .max(100)
+                .step(0.5)
 
-        this.debugFolder
-            .add(this.top, 'fov')
-            // .name('envMapIntensity')
-            .min(0)
-            .max(200)
-            .step(1)
-        this.debugFolder
-            .add(this.top.position, 'x')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        this.debugFolder
-            .add(this.top.position, 'y')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        this.debugFolder
-            .add(this.top.position, 'z')
-            // .name('envMapIntensity')
-            .min(-100)
-            .max(100)
-            .step(0.5)
-        // }
-
+        }
     }
 
     resize() {

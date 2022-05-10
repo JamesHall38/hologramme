@@ -21,6 +21,15 @@ body {
 	background: black;
 }
 
+.test {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: red;
+	width: 100px;
+	height: 100px;
+}
+
 .lil-gui.autoPlace {
 	top: auto;
 	bottom: 0;

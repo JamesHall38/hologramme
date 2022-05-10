@@ -20,8 +20,6 @@ export default class Experience extends EventEmitter {
 
         this.source = _source
 
-        console.log(this.source)
-
         this.files = null
         // this.source = null
 
@@ -46,8 +44,6 @@ export default class Experience extends EventEmitter {
         this.renderer = new Renderer()
         this.environment = new Environment()
         this.loadModel = new LoadModel()
-
-        console.log(this.resources)
 
         this.rotate = true
         this.debug.add(this, 'rotate')

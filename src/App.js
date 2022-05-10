@@ -1,4 +1,3 @@
-import ReactDOM from "react-dom/client"
 import {
   BrowserRouter,
   Routes,
@@ -8,7 +7,7 @@ import Experience from './Model/Experience.js'
 import DragAndDrop from './components/DragAndDrop'
 import Nav from './components/Nav.js'
 import './App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 
 import FPSStats from "react-fps-stats"
@@ -22,6 +21,13 @@ const Model = ({ files, setFiles, source }) => {
   if (files) {
     exp.files = files
   }
+  // useEffect(() => {
+
+  //   // put the performance monitor in the gui folder
+  //   const performance = document.getElementById('gui').style.display = 'none'
+  //   const performanceFolder = exp.debug.addFolder('Performance')
+  //   performance.appendChild(performanceFolder)
+  // }, [])
 
   return <Nav />
 }
@@ -29,6 +35,8 @@ const Model = ({ files, setFiles, source }) => {
 
 function App() {
   const [files, setFiles] = useState(false)
+
+
 
   return (
     <div className="App">
