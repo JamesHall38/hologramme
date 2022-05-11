@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import * as dat from 'lil-gui'
 
 import Sizes from './Utils/Sizes.js'
 import Time from './Utils/Time.js'
@@ -7,7 +6,7 @@ import Camera from './Camera.js'
 import Renderer from './Renderer.js'
 import Resources from './Utils/Resources.js'
 
-// import sources from './sources.js'
+import Debug from './Debug.js'
 import LoadModel from './LoadModel.js'
 import Environment from './Environment.js'
 import EventEmitter from './Utils/EventEmitter.js'
@@ -33,8 +32,10 @@ export default class Experience extends EventEmitter {
         window.experience = this
 
         // Setup
-        this.debug = new dat.GUI()
+        this.guiPannel = new Debug()
+        this.debug = this.guiPannel.debug.addFolder('Edit').close()
         this.debug.domElement.id = 'gui'
+
 
         this.sizes = new Sizes()
         this.time = new Time()
@@ -45,8 +46,8 @@ export default class Experience extends EventEmitter {
         this.environment = new Environment()
         this.loadModel = new LoadModel()
 
-        this.rotate = true
-        this.debug.add(this, 'rotate')
+        this.Rotate = true
+        this.guiPannel.debug.add(this, 'Rotate')
 
         // Resize event
         this.sizes.on('resize', () => {
@@ -58,22 +59,25 @@ export default class Experience extends EventEmitter {
             this.update()
         })
     }
-
     resize() {
         this.camera.resize()
         this.renderer.resize()
     }
 
     update() {
+        this.guiPannel.stats.begin();
+
         if (this.files)
             this.trigger('ready')
 
-        if (this.rotate) {
+        if (this.Rotate) {
             this.scene.rotation.y += 0.01
         }
 
         this.camera.update()
         this.renderer.update()
         this.loadModel.update()
+
+        this.guiPannel.stats.end();
     }
 }

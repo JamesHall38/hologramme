@@ -3,7 +3,7 @@ import download from './assets/download.jpg'
 import { useDropzone } from 'react-dropzone'
 
 
-const DragAndDrop = ({ files, setFiles }) => {
+const DragAndDrop = ({ setFiles }) => {
     const onDrop = useCallback(acceptedFiles => {
         acceptedFiles.forEach((file) => {
             const reader = new FileReader()
@@ -16,19 +16,21 @@ const DragAndDrop = ({ files, setFiles }) => {
             }
             reader.readAsArrayBuffer(file)
         })
-    }, [])
+    }, [setFiles])
     const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
     return (
-        <div {...getRootProps()}>
+        <div {...getRootProps()} >
             <input {...getInputProps()} />
             {
-                <p className='drop'>
-                    Import model
-                    <img src={download} alt="download" style={{ position: 'relative', width: '50px', height: '50px' }} />
-                </p>
+                <div id="dl">
+                    <p className='drop'>
+                        Import model
+                        <img src={download} alt="download" style={{ position: 'relative', width: '50px', height: '50px' }} />
+                    </p>
+                </div>
             }
-        </div>
+        </div >
     )
 }
 

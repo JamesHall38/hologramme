@@ -11,10 +11,6 @@ export default class LoadModel {
         this.time = this.experience.time
         this.debug = this.experience.debug
 
-        this.Test = this.debug.addFolder('Test')
-        const bebi = document.getElementById('test')
-        console.log(bebi)
-        // this.Test.add(bebi).name('value')
         this.debugModelFolder = this.debug.addFolder('Model').close()
 
         this.importedLoaded = false
@@ -36,24 +32,8 @@ export default class LoadModel {
         })
 
         this.resources.on('ready', () => {
-            // this.resource = { re: this.resources.items['foxModel'] }
             this.resource = { re: this.resources.items[this.experience.source[0].name] }
             this.setModel()
-
-            // this.debug.add(this.resource, 're', {
-            //     PixelMan: this.resources.items['pixelManModel'],
-            //     Fox: this.resources.items['foxModel'],
-            // })
-            //     .onFinishChange(() => {
-            //         this.scene.children.forEach(child => {
-            //             if (child.type === 'Group')
-            //                 child.children[0].visible = false
-            //         })
-            //         if (this.debugFolder)
-            //             this.debugFolder.destroy()
-
-            //         this.setModel()
-            //     })
         })
     }
 
@@ -72,7 +52,7 @@ export default class LoadModel {
         borderBox.getCenter(center)
         borderBox.getSize(size)
         this.model.position.copy(center).multiplyScalar(-1)
-        this.model.position.y -= (size.y * 0.5) - 1.5
+        this.model.position.y -= (size.y * 0.5) - 1.25
         // updateAllMaterials(this.scene, debugObject, environmentMap)
         this.scene.traverse((child) => {
             if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
@@ -131,7 +111,7 @@ export default class LoadModel {
                 this.debugFolder.destroy()
             // Actions
             this.animation.actions = {}
-            this.debugFolder = this.debug.addFolder('Animations')
+            this.debugFolder = this.debug.addFolder('Animations').close()
 
             this.resource.re.animations.forEach((animation) => {
                 const debugObject = {

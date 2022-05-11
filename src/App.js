@@ -7,42 +7,26 @@ import Experience from './Model/Experience.js'
 import DragAndDrop from './components/DragAndDrop'
 import Nav from './components/Nav.js'
 import './App.css'
-import { useEffect, useState } from 'react'
-
-
-import FPSStats from "react-fps-stats"
+import { useState } from 'react'
 
 
 
-const Model = ({ files, setFiles, source }) => {
-  // const [source, setSource] = useState(false)
+const Model = ({ files, source }) => {
   const exp = new Experience(source)
-  // exp.source = source
   if (files) {
     exp.files = files
   }
-  // useEffect(() => {
-
-  //   // put the performance monitor in the gui folder
-  //   const performance = document.getElementById('gui').style.display = 'none'
-  //   const performanceFolder = exp.debug.addFolder('Performance')
-  //   performance.appendChild(performanceFolder)
-  // }, [])
-
   return <Nav />
 }
 
-
 function App() {
   const [files, setFiles] = useState(false)
-
-
 
   return (
     <div className="App">
 
       <DragAndDrop files={files} setFiles={setFiles} />
-      <FPSStats top={'auto'} bottom={'0'} />
+      <div id="container"></div>
 
 
       <BrowserRouter>

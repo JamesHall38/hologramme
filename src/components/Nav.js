@@ -9,16 +9,16 @@ function Nav() {
     }
 
     return (
-        <div className='nav'>
-            <Link onClick={refreshPage} id='gui' to="/">Import</Link>
-            <Link onClick={refreshPage} id='gui' to="/meka3d">Meka3D</Link>
-            <Link onClick={refreshPage} id='gui' to="/meta-adventures">Meta Adventure</Link>
-            <Link onClick={refreshPage} id='gui' to="/metakonz">Meta Konz</Link>
-            <Link onClick={refreshPage} id='gui' to="/metalegends">Meta Legends</Link>
-            <Link onClick={refreshPage} id='gui' to="/uaf">UAF</Link>
-            <Link onClick={refreshPage} id='gui' to="/flayed">Flayed</Link>
-            <Link onClick={refreshPage} id='gui' to="/bots-skull">Bots Skull</Link>
-        </div>
+        <>
+            <Link onClick={refreshPage} className='links' id='fox' to="/">Fox</Link>
+            <Link onClick={refreshPage} className='links' id='meka3d' to="/meka3d">Meka3D</Link>
+            <Link onClick={refreshPage} className='links' id='metaadventures' to="/meta-adventures">Meta Adventure</Link>
+            <Link onClick={refreshPage} className='links' id='metakonz' to="/metakonz">Meta Konz</Link>
+            <Link onClick={refreshPage} className='links' id='metalegends' to="/metalegends">Meta Legends</Link>
+            <Link onClick={refreshPage} className='links' id='uaf' to="/uaf">UAF</Link>
+            <Link onClick={refreshPage} className='links' id='flayed' to="/flayed">Flayed</Link>
+            <Link onClick={refreshPage} className='links' id='botsskull' to="/bots-skull">Bots Skull</Link>
+        </>
     )
 }
 

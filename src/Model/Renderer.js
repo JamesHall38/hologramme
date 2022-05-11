@@ -95,10 +95,10 @@ export default class Renderer {
                 .min(0).max(1).step(0.001)
         }
 
-        this.bg = { blackBackground: false }
-        this.debug.add(this.bg, 'blackBackground')
+        this.bg = { Background: false }
+        this.experience.guiPannel.debug.add(this.bg, 'Background')
             .onChange(() => {
-                if (this.bg.blackBackground)
+                if (this.bg.Background)
                     this.scene.background = new THREE.Color(0, 0, 0)
                 else
                     this.scene.background = this.scene.environment
@@ -118,9 +118,6 @@ export default class Renderer {
         let width
         let height
 
-        //   const camera = i === 0 ? this.camera.right : 1 === 1 ? this.camera.left : this.camera.top
-
-        // view.updateCamera(camera, scene)
 
         left = Math.floor(this.sizes.width * views.right.left)
         bottom = Math.floor(this.sizes.height * views.right.bottom)
@@ -152,8 +149,6 @@ export default class Renderer {
         this.camera.left.updateProjectionMatrix()
 
         this.instance.render(this.scene, this.camera.left)
-
-
 
 
 

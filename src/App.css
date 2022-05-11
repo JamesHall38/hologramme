@@ -4,30 +4,29 @@ body {
 	background: black;
 	overflow: hidden;
 }
-.nav {
-	display: flex;
-	bottom: 50px;
-	right: 0;
-	flex-direction: column;
-	position: absolute;
-	background-color: rebeccapurple;
-	width: 100px;
-	height: 200px;
+
+.links {
+	display: inline-block;
+	width: 240px;
+	height: 20px;
+	color: white;
+	text-decoration: none;
+	font-size: small;
+	border: 1px solid rgb(0, 0, 0);
+	padding-left: 15px;
+
+	position: static;
+	background: rgb(49, 49, 49);
+}
+
+.dg li.gui-stats:not(.folder) {
+	height: auto;
 }
 
 .canvas {
 	position: relative;
 	top: 0;
 	background: black;
-}
-
-.test {
-	position: absolute;
-	top: 0;
-	left: 0;
-	background: red;
-	width: 100px;
-	height: 100px;
 }
 
 .lil-gui.autoPlace {
@@ -37,6 +36,8 @@ body {
 
 .drop {
 	position: absolute;
+	/* visibility: hidden; */
+	/* opacity: 0; */
 	display: flex;
 	flex-direction: column;
 	justify-content: center;

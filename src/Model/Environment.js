@@ -11,7 +11,7 @@ export default class Environment {
         this.debug = this.experience.debug
 
         // Debug
-        this.debugFolder = this.debug.addFolder('environment').close()
+        this.debugFolder = this.debug.addFolder('Environment').close()
         this.light1Folder = this.debugFolder.addFolder('sunLight1').close()
         this.light2Folder = this.debugFolder.addFolder('sunLight2').close()
 
@@ -21,8 +21,6 @@ export default class Environment {
             this.setSunLight()
             this.setEnvironmentMap(1)
         })
-
-
     }
 
     setSunLight() {
@@ -120,7 +118,7 @@ export default class Environment {
                 this.updateMaterials()
 
                 // this.scene.environment
-                if (!this.renderer.bg.blackBackground)
+                if (!this.renderer.bg.Background)
                     this.scene.background = this.scene.environment
             })
         this.scene.environment = this.environmentMap.texture
@@ -139,21 +137,6 @@ export default class Environment {
         this.updateMaterials()
     }
 
-
-    updateMaterials() {
-        this.scene.children.forEach((group) => {
-            group.traverse((child) => {
-                if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                    child.material.envMap = this.environmentMap.texture
-                    child.material.envMapIntensity = this.environmentMap.intensity
-                    child.material.needsUpdate = true
-                }
-            })
-        })
-    }
-
-
-
     getEnvironmentMap(envNum) {
         const environmentMap = {}
         environmentMap.intensity = 0.4
@@ -167,12 +150,8 @@ export default class Environment {
         ])
 
         this.envIndex = envNum
-
-        // this.environmentMap.texture = this.resources.items.environmentMapTexture
         environmentMap.texture.encoding = THREE.sRGBEncoding
         this.scene.userData.name = envNum
-        // this.scene.environment = this.environmentMap.texture
-
         this.environmentMap.texture = environmentMap.texture
         this.updateMaterials()
 
