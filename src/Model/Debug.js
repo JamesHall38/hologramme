@@ -9,8 +9,8 @@ export default class Debug {
         this.debug = new dat.GUI()
         this.sizes = this.experience.sizes
 
-        this.test = this.debug.addFolder('Navigation').close()
-        this.importFolder = this.test.addFolder('Import').close()
+        this.fold = this.debug.addFolder('Navigation').close()
+        this.importFolder = this.fold.addFolder('Import').close()
 
         this.debugObject = { ShowDropZone: false }
         this.importFolder.add(this.debugObject, 'ShowDropZone').onChange(() => {
@@ -22,10 +22,10 @@ export default class Debug {
             }
         })
 
-        this.stats = new Stats();
+        this.stats = new Stats()
         this.stats.domElement.style.position = "static"
-        this.stats.domElement.style.left = "0px"
-        this.test.domElement.appendChild(this.stats.domElement)
+        this.stats.domElement.style.right = "0px"
+        this.fold.domElement.appendChild(this.stats.domElement)
 
         this.hideImport()
 
