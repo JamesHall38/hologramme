@@ -9,7 +9,7 @@ const views = {
         height: 0.5,
         background: new THREE.Color(0.5, 0.5, 0.7),
         eye: { x: 0, y: 0, z: -5 },
-        up: [1, 0, 0],
+        up: [-1, 0, 0],
         fov: 45,
     },
     left: {
@@ -19,7 +19,7 @@ const views = {
         height: 0.5,
         background: new THREE.Color(0.7, 0.5, 0.5),
         eye: { x: 0, y: 0, z: 5 },
-        up: [1, 0, 0],
+        up: [-1, 0, 0],
         fov: 45,
     },
     top: {
