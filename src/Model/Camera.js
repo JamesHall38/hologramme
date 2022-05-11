@@ -1,11 +1,12 @@
 import * as THREE from 'three'
 import Experience from './Experience.js'
+console.log(window.innerWidth)
 
 const views = {
     right: {
         left: 0.6,
         bottom: 0.5,
-        width: 0.4,
+        width: window.innerWidth > 600 ? 0.4 : 0.5,
         height: 0.5,
         background: new THREE.Color(0.5, 0.5, 0.7),
         eye: { x: 0, y: 0, z: -5 },
@@ -15,7 +16,7 @@ const views = {
     left: {
         left: 0,
         bottom: 0.5,
-        width: 0.4,
+        width: window.innerWidth > 600 ? 0.4 : 0.5,
         height: 0.5,
         background: new THREE.Color(0.7, 0.5, 0.5),
         eye: { x: 0, y: 0, z: 5 },
@@ -25,7 +26,7 @@ const views = {
     top: {
         left: 0.25,
         bottom: 0,
-        width: 0.5,
+        width: window.innerWidth > 600 ? 0.5 : 1,
         height: 0.5,
         background: new THREE.Color(0.5, 0.7, 0.7),
         eye: { x: 5, y: 0, z: 0 },
