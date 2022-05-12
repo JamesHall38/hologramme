@@ -25,14 +25,21 @@ export default class LoadModel {
         this.resources.on('importedReady', () => {
             this.scene.children.forEach(child => {
                 if (child.type === 'Group')
-                    child.children[0].visible = false
+                    child.children.forEach(childd => {
+                        childd.visible = false
+                    })
             })
             this.resource.re = this.resources.items['fileTEST']
             this.setModel()
         })
 
         this.resources.on('ready', () => {
-            this.resource = { re: this.resources.items[this.experience.source[0].name] }
+            // console.log(this.experience.source)
+            if (this.experience.display)
+                this.resource = { re: this.resources.items[this.experience.source[0].name] }
+            else
+                this.resource = { re: this.resources.items[this.experience.source[0].name] }
+
             this.setModel()
         })
     }
@@ -76,12 +83,19 @@ export default class LoadModel {
             .onChange(() => {
                 this.model.scale.set(this.debugObject.scale, this.debugObject.scale, this.debugObject.scale)
             })
-        this.debugModelFolder.add(this.debugObject, 'rotation')
+
+
+        if (this.experience.display)
+            this.experience.guiPannel.getRotate()
+
+        this.debug.add(this.debugObject, 'rotation')
             .min(-Math.PI)
             .max(Math.PI)
             .name('rotation')
             .onChange(() => {
                 this.model.rotation.y = this.debugObject.rotation
+                // if (this)
+                this.experience.guiPannel.rotate()
             }
             )
         this.debugModelFolder.add(this.model.position, 'x')
@@ -111,31 +125,54 @@ export default class LoadModel {
                 this.debugFolder.destroy()
             // Actions
             this.animation.actions = {}
-            this.debugFolder = this.debug.addFolder('Animations').close()
+            this.debugFolder = this.debug.addFolder('Animations')
+
+            // if (!this.experience.display) {
 
             this.resource.re.animations.forEach((animation) => {
                 const debugObject = {
-                    play: () => { this.animation.play(animation.name) }
+                    play: () => {
+                        this.animation.play(animation.name)
+                        if (this.experience.guiPannel.debugObject.SendToHologram)
+                            this.experience.guiPannel.animation(animation.name)
+                    }
                 }
                 this.animation.actions[animation.name] = this.animation.mixer.clipAction(animation)
                 this.debugFolder.add(debugObject, `play`).name(animation.name)
+
             })
+            this.animation.actions.current = this.animation.actions[Object.keys(this.animation.actions)[0]]
+            this.animation.current = this.animation.actions.current
+
+            this.experience.guiPannel.getAnimation()
 
             // Play the action
             this.animation.play = (name) => {
                 const newAction = this.animation.actions[name]
-                // const oldAction = this.animation.actions.current
+
+                const oldAction = this.animation.current
 
                 newAction.reset()
                 newAction.play()
-                // newAction.crossFadeFrom(oldAction, 1)
+                newAction.crossFadeFrom(oldAction, 1)
 
-                this.animation.actions.current = newAction
+                this.animation.current = newAction
             }
         }
     }
 
     update() {
+
+        if (this.animation && this.experience.test && this.experience.display) {
+            if (this.experience.test.name !== this.animation.current._clip.name) {
+                console.log('test=', this.experience.test.name, 'current=', this.animation.current._clip.name)
+                this.animation.play(this.experience.test.name)
+            }
+
+            // this.animation.play(test.name)
+            // console.log(test)
+        }
+
         if (this.animation)
             this.animation.mixer.update(this.time.delta * 0.001)
     }

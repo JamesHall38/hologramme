@@ -19,8 +19,14 @@ export default class Experience extends EventEmitter {
 
         this.source = _source
 
+
+
+        this.tatt = true
+
+        this.test = null
         this.files = null
-        // this.source = null
+        this.firebaseLoader = null
+
 
         // Singleton
         if (instance) {
@@ -36,18 +42,27 @@ export default class Experience extends EventEmitter {
         this.debug = this.guiPannel.debug.addFolder('Edit').close()
         this.debug.domElement.id = 'gui'
 
+        this.display = window.location.pathname === '/display' ? true : false
 
         this.sizes = new Sizes()
         this.time = new Time()
         this.scene = new THREE.Scene()
-        this.resources = new Resources(this.source)
+
         this.camera = new Camera()
         this.renderer = new Renderer()
+        this.resources = new Resources(this.source)
         this.environment = new Environment()
         this.loadModel = new LoadModel()
 
         this.Rotate = true
-        this.guiPannel.debug.add(this, 'Rotate')
+        if (this.display) {
+            this.guiPannel.getRotate()
+        }
+        this.guiPannel.debug.add(this, 'Rotate').onFinishChange(() => {
+            if (this.guiPannel.debugObject.SendToHologram) {
+                this.guiPannel.rotate()
+            }
+        })
 
         // Resize event
         this.sizes.on('resize', () => {
@@ -65,18 +80,34 @@ export default class Experience extends EventEmitter {
     }
 
     update() {
+
         this.guiPannel.stats.begin();
+
+        this.guiPannel.update()
 
         if (this.files)
             this.trigger('ready')
+
+        // console.log(this.source)
+        // this.source = this.guiPannel.getSource()
+
+        // if (this.source !== null && this.display && this.tatt) {
+        //     console.log('jhzbefbhjz')
+
+        //     this.tatt = false
+        // }
+
 
         if (this.Rotate) {
             this.scene.rotation.y += 0.01
         }
 
+        // is   console.log('test')
         this.camera.update()
         this.renderer.update()
         this.loadModel.update()
+        // }
+
 
         this.guiPannel.stats.end();
     }

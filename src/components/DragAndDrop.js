@@ -25,7 +25,7 @@ const DragAndDrop = ({ setFiles }) => {
             {
                 <div id="dl">
                     <p className='drop'>
-                        Import model
+                        *.GLB ONLY
                         <img src={download} alt="download" style={{ position: 'relative', width: '50px', height: '50px' }} />
                     </p>
                 </div>

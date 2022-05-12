@@ -3,9 +3,9 @@ import Experience from './Experience.js'
 
 const views = {
     right: {
-        left: 0.6,
+        left: window.innerWidth > 600 ? 0.6 : 0.5,
         bottom: 0.5,
-        width: 0.4,
+        width: window.innerWidth > 600 ? 0.4 : 0.5,
         height: 0.5,
         background: new THREE.Color(0.5, 0.5, 0.7),
         up: [1, 0, 0],
@@ -13,15 +13,15 @@ const views = {
     left: {
         left: 0,
         bottom: 0.5,
-        width: 0.4,
+        width: window.innerWidth > 600 ? 0.4 : 0.5,
         height: 0.5,
         background: new THREE.Color(0.7, 0.5, 0.5),
         up: [1, 0, 0],
     },
     top: {
-        left: 0.25,
+        left: window.innerWidth > 600 ? 0.25 : 0,
         bottom: 0,
-        width: 0.5,
+        width: window.innerWidth > 600 ? 0.5 : 1,
         height: 0.5,
         background: new THREE.Color(0.5, 0.7, 0.7),
         up: [0, 1, 0],
@@ -45,6 +45,9 @@ export default class Renderer {
         this.topFolder = this.debugFolder.addFolder('Top').close()
 
         this.setInstance()
+
+        if (this.experience.display)
+            this.scene.background = new THREE.Color(0, 0, 0)
 
     }
 
