@@ -45,7 +45,11 @@ function Nav({ firebaseLoader, first, setFirst, save, setSave }) {
             <Link onClick={refreshPage} className='links' id='Urban_token' to="/urban-token">Urban token</Link>
             <Link onClick={refreshPage} className='links' id='meta_adventure_new' to="/meta-adventure-new">Meta-Adventure New</Link>
             <Link onClick={refreshPage} className='links' id='flayed_gold' to="/flayed-gold">Flayed GOLD</Link>
-
+            <Link onClick={refreshPage} className='links' id='dragon' to="/dragon">Dragon</Link>
+            <Link onClick={refreshPage} className='links' id='wolf' to="/wolf">Wolf</Link>
+            <Link onClick={refreshPage} className='links' id='deer' to="/deer">Deer</Link>
+            <Link onClick={refreshPage} className='links' id='spider' to="/spider">Spider</Link>
+            <Link onClick={refreshPage} className='links' id='mannequin' to="/mannequin">Mannequin</Link>
         </>
     )
 }

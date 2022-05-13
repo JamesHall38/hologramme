@@ -169,6 +169,41 @@ function App() {
               path: '/FLAYED_GOLD.glb'
             }
           ]} />}></Route>
+          <Route path="/wolf" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
+            {
+              name: 'wolf',
+              type: 'gltfModel',
+              path: '/Wolf.glb'
+            }
+          ]} />}></Route>
+          <Route path="/spider" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
+            {
+              name: 'spider',
+              type: 'gltfModel',
+              path: '/Spider.glb'
+            }
+          ]} />}></Route>
+          <Route path="/deer" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
+            {
+              name: 'deer',
+              type: 'gltfModel',
+              path: '/Deer.glb'
+            }
+          ]} />}></Route>
+          <Route path="/dragon" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
+            {
+              name: 'dragon',
+              type: 'gltfModel',
+              path: '/Dragon.glb'
+            }
+          ]} />}></Route>
+          <Route path="/mannequin" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
+            {
+              name: 'mannequin',
+              type: 'gltfModel',
+              path: '/Mannequin.glb'
+            }
+          ]} />}></Route>
         </Routes>
       </BrowserRouter>
     </div>

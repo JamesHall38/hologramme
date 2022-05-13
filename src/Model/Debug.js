@@ -66,7 +66,12 @@ export default class Debug extends EventEmitter {
             'logo',
             'Urban_token',
             'flayed_gold',
-            'meta_adventure_new'
+            'meta_adventure_new',
+            'dragon',
+            'wolf',
+            'spider',
+            'deer',
+            'mannequin'
         ]
 
         model.forEach(id => {
