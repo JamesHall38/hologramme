@@ -1,10 +1,9 @@
 import * as THREE from 'three'
-import Experience from './Experience.js'
 
 
 export default class Environment {
-    constructor() {
-        this.experience = new Experience()
+    constructor(experience) {
+        this.experience = experience
         this.renderer = this.experience.renderer
         this.scene = this.experience.scene
         this.resources = this.experience.resources
@@ -17,7 +16,7 @@ export default class Environment {
 
         this.cubeTextureLoader = new THREE.CubeTextureLoader()
 
-        this.resources.on('ready', () => {
+        this.resources.on('importedReady', () => {
             this.setSunLight()
             this.setEnvironmentMap(1)
         })

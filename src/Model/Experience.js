@@ -11,58 +11,63 @@ import LoadModel from './LoadModel.js'
 import Environment from './Environment.js'
 import EventEmitter from './Utils/EventEmitter.js'
 
-let instance = null
 
 export default class Experience extends EventEmitter {
-    constructor(_source) {
+    constructor(type) {
         super()
 
-        this.source = _source
+        this.source = []
+        // this.num = num
 
-
-
-        this.tatt = true
-
-        this.test = null
         this.files = null
-        this.firebaseLoader = null
+        this.modelType = type
+        this.type = 'triple'
 
-
-        // Singleton
-        if (instance) {
-            return instance
+        this.settings = {
+            scale: 1,
+            modelPositionX: 0,
+            modelPositionY: -0.25,
+            modelPositionZ: 0,
+            rotation: 0,
         }
-        instance = this
 
-        // Global access
-        window.experience = this
-
+        this.display = window.location.pathname === '/display'
         // Setup
-        this.guiPannel = new Debug()
+        // if (!this.display) {
+        this.guiPannel = new Debug(this)
         this.debug = this.guiPannel.debug.addFolder('Edit').close()
         this.debug.domElement.id = 'gui'
+        // }
 
-        this.display = window.location.pathname === '/display' ? true : false
 
+        this.onSelect = true
         this.sizes = new Sizes()
-        this.time = new Time()
+        this.time = new Time(this)
         this.scene = new THREE.Scene()
 
-        this.camera = new Camera()
-        this.renderer = new Renderer()
+        this.camera = new Camera(this)
+        this.renderer = new Renderer(this)
         this.resources = new Resources(this.source)
-        this.environment = new Environment()
-        this.loadModel = new LoadModel()
+        this.loadModel = new LoadModel(false, this)
+        this.environment = new Environment(this)
+
+        console.log('EXPERIENCE')
+
+        this.canvas = document.createElement('canvas')
+
+        // this.canvas = document.
 
         this.Rotate = true
+
         if (this.display) {
-            this.guiPannel.getRotate()
+
+
+            this.guiPannel.debug.add(this, 'Rotate').onFinishChange(() => {
+                if (this.guiPannel.debugObject.SendToHologram) {
+                    this.guiPannel.rotate()
+                }
+            })
         }
-        this.guiPannel.debug.add(this, 'Rotate').onFinishChange(() => {
-            if (this.guiPannel.debugObject.SendToHologram) {
-                this.guiPannel.rotate()
-            }
-        })
 
         // Resize event
         this.sizes.on('resize', () => {
@@ -79,36 +84,88 @@ export default class Experience extends EventEmitter {
         this.renderer.resize()
     }
 
+    removeLoadingBox() {
+        this.scene.remove(this.loadingMesh)
+    }
+
     update() {
 
+        // if (!this.display)
         this.guiPannel.stats.begin();
 
-        this.guiPannel.update()
+        // this.guiPannel.update()
 
         if (this.files)
             this.trigger('ready')
-
-        // console.log(this.source)
-        // this.source = this.guiPannel.getSource()
-
-        // if (this.source !== null && this.display && this.tatt) {
-        //     console.log('jhzbefbhjz')
-
-        //     this.tatt = false
-        // }
-
 
         if (this.Rotate) {
             this.scene.rotation.y += 0.01
         }
 
-        // is   console.log('test')
         this.camera.update()
         this.renderer.update()
         this.loadModel.update()
-        // }
 
-
+        // if (!this.display)
         this.guiPannel.stats.end();
+    }
+
+    removeModel() {
+        console.log('remove model', this.scene)
+        // Traverse the whole scene
+        this.scene.traverse((child) => {
+            // Test if it's a mesh
+            if (child instanceof THREE.Mesh) {
+                console.log(child.geometry.dispose)
+                child.geometry.dispose()
+
+                // Loop through the material properties
+                for (const key in child.material) {
+                    const value = child.material[key]
+
+                    // Test if there is a dispose function
+                    if (value && typeof value.dispose === 'function') {
+                        value.dispose()
+                    }
+                }
+            }
+        })
+
+        // this.scene.remove(child)
+    }
+
+
+    destroy() {
+        this.sizes.off('resize')
+        this.time.off('tick')
+
+        // Traverse the whole scene
+        this.scene.traverse((child) => {
+            // Test if it's a mesh
+            if (child instanceof THREE.Mesh) {
+                child.geometry.dispose()
+
+                // Loop through the material properties
+                for (const key in child.material) {
+                    const value = child.material[key]
+
+                    // Test if there is a dispose function
+                    if (value && typeof value.dispose === 'function') {
+                        value.dispose()
+                    }
+                }
+            }
+        })
+
+        // this.camera.controls.dispose()
+        // const test = document.getElementById('backButton').remove()
+        // this.guiPannel.statsFolder.domElement.removeChild(test)
+        // document.getElementById
+
+        // if (!this.display)
+        document.body.removeChild(this.guiPannel.debug.domElement)
+        document.body.removeChild(this.renderer.instance.domElement)
+        this.renderer.instance.dispose()
+        // document.getElementById('webgl0').
     }
 }

@@ -5,13 +5,13 @@ import {
 } from "firebase/auth"
 import {
     getDatabase,
-    ref,
+    ref as ref_data,
     onValue
 } from "firebase/database"
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 
+const Firebase = () => {
 
-const Firebase = ({ setFirebaseLoader }) => {
 
     useEffect(() => {
         // Initialize Firebase
@@ -27,35 +27,20 @@ const Firebase = ({ setFirebaseLoader }) => {
         const app = initializeApp(firebaseConfig)
         const auth = getAuth(app)
 
-        function getSource() {
-            const db = getDatabase();
-            const starCountRef = ref(db, 'users/test')
-            onValue(starCountRef, (snapshot) => {
-                const data = snapshot.val()
-                const source = data
-                // console.log(source)
-                setFirebaseLoader(source)
-            })
-        }
 
-        // function writeUserData() {
-        //     const db = getDatabase()
-        //     console.log(db);
-        //     set(ref(db, 'users/test'), {
-        //         // id: userId,
-        //         name: "eff",
-        //     })
-        // }
-        // console.log("2ffois")
         signInAnonymously(auth, app)
             .catch((e) => console.error('Anonymous sign in failed: ', e))
             .then(() => {
                 console.log('Anonymous sign in succeeded')
                 // const userId = auth.currentUser.uid;
                 // writeUserData()
-                getSource()
+                // getModelsNum()
+
+                // if (!newCard) {
+                // }
             })
-    }, [setFirebaseLoader])
+    }, [])
+
 
     return null
 }

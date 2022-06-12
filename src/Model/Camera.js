@@ -1,49 +1,49 @@
 import * as THREE from 'three'
-import Experience from './Experience.js'
-console.log(window.innerWidth)
 
-const views = {
-    right: {
-        left: 0.6,
-        bottom: 0.5,
-        width: window.innerWidth > 600 ? 0.4 : 0.5,
-        height: 0.5,
-        background: new THREE.Color(0.5, 0.5, 0.7),
-        eye: { x: 0, y: 0, z: -5 },
-        up: [-1, 0, 0],
-        fov: 55,
-    },
-    left: {
-        left: 0,
-        bottom: 0.5,
-        width: window.innerWidth > 600 ? 0.4 : 0.5,
-        height: 0.5,
-        background: new THREE.Color(0.7, 0.5, 0.5),
-        eye: { x: 0, y: 0, z: 5 },
-        up: [-1, 0, 0],
-        fov: 55,
-    },
-    top: {
-        left: 0.25,
-        bottom: 0,
-        width: window.innerWidth > 600 ? 0.5 : 1,
-        height: 0.5,
-        background: new THREE.Color(0.5, 0.7, 0.7),
-        eye: { x: 5, y: 0, z: 0 },
-        up: [0, 1, 0],
-        fov: 55,
-    }
-}
 
 
 export default class Camera {
-    constructor() {
-        this.experience = new Experience()
+    constructor(experience) {
+        this.experience = experience
         this.debug = this.experience.debug
         this.sizes = this.experience.sizes
         this.scene = this.experience.scene
         this.canvas = this.experience.canvas
 
+        this.isVid = this.experience.modelType === 'vid'
+
+        this.views = {
+            right: {
+                left: 0.6,
+                bottom: 0.5,
+                width: window.innerWidth > 600 ? 0.4 : 0.5,
+                height: 0.5,
+                background: new THREE.Color(0.5, 0.5, 0.7),
+                eye: { x: 0, y: 0, z: -2 },
+                up: [-1, 0, 0],
+                fov: 55,
+            },
+            left: {
+                left: 0,
+                bottom: 0.5,
+                width: window.innerWidth > 600 ? 0.4 : 0.5,
+                height: 0.5,
+                background: new THREE.Color(0.7, 0.5, 0.5),
+                eye: { x: 0, y: 0, z: 2 },
+                up: [-1, 0, 0],
+                fov: 55,
+            },
+            top: {
+                left: 0,
+                bottom: 0,
+                width: window.innerWidth > 600 ? 0.5 : 1,
+                height: 0.5,
+                background: new THREE.Color(0.5, 0.7, 0.7),
+                eye: { x: 2, y: 0, z: 0 },
+                up: [0, 1, 0],
+                fov: 55,
+            }
+        }
         // Debug
         this.debugFolder = this.debug.addFolder('Cameras').close()
         this.rightFolder = this.debugFolder.addFolder('Right').close()
@@ -52,21 +52,20 @@ export default class Camera {
 
 
         this.setInstance()
-
     }
 
     setInstance() {
-        this.right = new THREE.PerspectiveCamera(views.right.fov, this.sizes.width / this.sizes.height, 1, 10000)
-        this.left = new THREE.PerspectiveCamera(views.left.fov, this.sizes.width / this.sizes.height, 1, 10000)
-        this.top = new THREE.PerspectiveCamera(views.top.fov, this.sizes.width / this.sizes.height, 1, 10000)
+        this.right = new THREE.PerspectiveCamera(this.views.right.fov, this.sizes.width / this.sizes.height, 1, 10000)
+        this.left = new THREE.PerspectiveCamera(this.views.left.fov, this.sizes.width / this.sizes.height, 1, 10000)
+        this.top = new THREE.PerspectiveCamera(this.views.top.fov, this.sizes.width / this.sizes.height, 1, 10000)
 
-        this.right.position.fromArray([views.right.eye.x, views.right.eye.y, views.right.eye.z])
-        this.left.position.fromArray([views.left.eye.x, views.left.eye.y, views.left.eye.z])
-        this.top.position.fromArray([views.top.eye.x, views.top.eye.y, views.top.eye.z])
+        this.right.position.fromArray([this.views.right.eye.x, this.views.right.eye.y, this.views.right.eye.z])
+        this.left.position.fromArray([this.views.left.eye.x, this.views.left.eye.y, this.views.left.eye.z])
+        this.top.position.fromArray([this.views.top.eye.x, this.views.top.eye.y, this.views.top.eye.z])
 
-        this.right.up.fromArray(views.right.up)
-        this.left.up.fromArray(views.left.up)
-        this.top.up.fromArray(views.top.up)
+        this.right.up.fromArray(this.views.right.up)
+        this.left.up.fromArray(this.views.left.up)
+        this.top.up.fromArray(this.views.top.up)
 
 
         for (let i = 0; i < 3; i++) {

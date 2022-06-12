@@ -1,8 +1,10 @@
 import EventEmitter from './EventEmitter.js'
 
 export default class Time extends EventEmitter {
-    constructor() {
+    constructor(experience) {
         super()
+
+        this.experience = experience
 
         // Setup
         this.start = Date.now()
@@ -23,8 +25,10 @@ export default class Time extends EventEmitter {
 
         this.trigger('tick')
 
-        window.requestAnimationFrame(() => {
-            this.tick()
-        })
+        if (this.experience.onSelect) {
+            window.requestAnimationFrame(() => {
+                this.tick()
+            })
+        }
     }
 }

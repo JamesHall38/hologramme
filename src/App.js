@@ -2,208 +2,274 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate
 } from "react-router-dom"
-import Experience from './Model/Experience.js'
-import DragAndDrop from './components/DragAndDrop'
-import Nav from './components/Nav.js'
+import Preview from './components/Preview'
+import Home from './components/Home'
+import Model from './components/Model'
 import './App.css'
-import { useEffect, useState } from 'react'
 import Firebase from './components/Firebase.jsx'
+// import sources from './Model/sources.js'
+// import React, { useState } from 'react'
 
+import React, { useCallback, useState, useEffect } from 'react'
+import CardExperience from './Model/CardExperience'
 
+import {
+  getDatabase,
+  ref as ref_data,
+  onValue
+} from "firebase/database"
+import {
+  getStorage,
+  ref as ref_storage,
+  getBytes,
+  getMetadata
+} from "firebase/storage"
 
-const Model = ({ files, source, firebaseLoader }) => {
-
-
-  const [first, setFirst] = useState(true)
-  const [save, setSave] = useState({ value: '' })
-
-  useEffect(() => {
-    let exp
-    let block = false
-    if (source) {
-      // console.log(source)
-
-      exp = new Experience(source)
-      block = true
-    }
-
-    if (!block) {
-      if (firebaseLoader.name === 'empty')
-        console.log(firebaseLoader)
-      else
-        exp = new Experience([firebaseLoader])
-    }
-    // else {
-    if (files) {
-      exp.files = files
-    }
-    // }
-  }, [firebaseLoader, files, source])
-
-  return <Nav firebaseLoader={firebaseLoader} save={save} setSave={setSave} first={first} setFirst={setFirst} />
-}
 
 function App() {
-  const [files, setFiles] = useState(false)
-  const [firebaseLoader, setFirebaseLoader] = useState({ name: 'empty' })
+
+  const [selectedCard, setSelectedCard] = useState({})
+  const [modelFiles, setModelFiles] = useState({})
+  const [newModel, setNewModel] = useState(false)
+  const [settings, setSettings] = useState({})
+
+  const getModel = useCallback((id, card) => {
+    const storage = getStorage()
+    // if (card.modelType === 'obj') {
+    getBytes(ref_storage(storage, `users/${id}`))
+      .then((model) => {
+        console.log('model = ', card.modelType)
+        if (card.modelType === 'obj')
+          card.resources.addOBJ(model)
+        else if (card.modelType === 'img')
+          card.resources.addImg(model)
+        else if (card.modelType === 'vid')
+          card.resources.addVid(model)
+        else if (card.modelType === 'gltf')
+          card.resources.addGLTF(model)
+        else if (card.modelType === 'fbx')
+          card.resources.addFBX(model)
+
+        card.loaded = true
+        setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    // }
+    // else if (card.modelType === 'img') {
+    //   getBytes(ref_storage(storage, `users/${id}.jpg`))
+    //     .then((model) => {
+    //       card.resources.addImg(model)
+    //       card.loaded = true
+    //       setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
+    //     })
+    //     .catch((error) => {
+    //       console.log(error)
+    //     })
+    // }
+  }, [])
+
+  const getCardInfo = useCallback((id, card) => {
+    if (window.location.pathname !== '/edit' && window.location.pathname !== '/display') {
+      const db = getDatabase()
+      onValue(ref_data(db, `users/${id}/`),
+        (snapshot) => {
+          // console.log(snapshot.val())
+          card.modelType = snapshot.val().card.modelType
+          card.cardName = snapshot.val().card.name
+          card.cardDescription = snapshot.val().card.description
+          if (snapshot.val().settings) {
+            // card.settings = snapshot.val().settings.settings
+            const settings = snapshot.val().settings.settings
+            card.settings = { ...settings, modelPositionZ: settings.modelPositionZ - 0.2 }
+          }
+        }
+        , {
+          onlyOnce: true
+        })
+
+    }
+  }, [])
+
+  const getModelsOneByOne = useCallback((cards, sizesArray, len) => {
+    let oldCard
+    if (sizesArray.length === len) {
+      sizesArray.forEach((element, i) => {
+        const retryFun = () => {
+          if (i === 0) {
+            console.log('get model and info ', element.id)
+            const card = cards[element.index]
+            oldCard = card
+            getModel(element.id, card)
+            return
+          }
+          else if (oldCard.loaded === true) {
+            console.log('get model and info ', element.id)
+            const card = cards[element.index]
+            oldCard = card
+            getModel(element.id, card)
+            return
+          }
+          else
+            setTimeout(() => { retryFun() }, 500)
+        }
+        retryFun()
+      })
+    }
+    else
+      setTimeout(() => { getModelsOneByOne(cards, sizesArray, len) }, 500)
+
+  }, [getModel])
+
+  const getModelsFromFirebase = useCallback((auth, cards) => {
+    if (auth && cards) {
+      if (cards.length) {
+        const sizesArray = []
+
+        auth.forEach((id, index) => {
+          cards[index].id = id
+          const storage = ref_storage(getStorage(), `users/${id}`)
+          getMetadata(storage).then((metaData) => {
+            sizesArray.push({ id: id, size: metaData.size, index: index })
+            sizesArray.sort((a, b) => { return a.size - b.size })
+          })
+          getCardInfo(id, cards[index])
+        })
+
+        getModelsOneByOne(cards, sizesArray, auth.length)
+
+      }
+      else
+        setTimeout(() => { getModelsFromFirebase() }, 500)
+    }
+  }, [getCardInfo, getModelsOneByOne])
+
+  const handleCardSelection = (auth, cards, card, index) => {
+    if (!card.onSelect) {
+      cards.forEach(card => {
+        if (card.onSelect) {
+          // document.body.style.paddingLeft = '0'
+          card.canvas.className = 'unselected'
+          card.onSelect = false
+          card.sizes.cardReset()
+          card.camera.instance.position.set(0, -0.25, 3)
+          card.camera.removeControls()
+        }
+      })
+
+      // if (window.innerWidth < 750) {
+      // document.body.style.height = '100%'
+
+      card.canvas.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'start'
+      })
+      // }
+
+      card.onSelect = true
+      card.sizes.cardResize()
+      card.camera.instance.position.z = 3.5
+      card.camera.setControls()
+      card.canvas.className = 'selected'
+
+      window.requestAnimationFrame(() => {
+        card.time.tick()
+      })
+
+      setSelectedCard({
+        selected: auth[index],
+        auth: auth,
+        cards: cards
+      })
+    }
+  }
+
+  const app = useCallback((auth, cards) => {
+    getModelsFromFirebase(auth, cards)
+
+    if (cards)
+      cards.forEach((card, index) => card.canvas.addEventListener('click', () => handleCardSelection(auth, cards, card, index)))
+
+    return () => {
+      cards.forEach((card, index) => {
+        card.canvas.removeEventListener('click', () => handleCardSelection(auth, cards, card, index))
+        card.destroy()
+      }
+      )
+    }
+  }, [getModelsFromFirebase])
+
+  const getData = useCallback(() => {
+    const db = getDatabase()
+    onValue(ref_data(db, `users/`),
+      (snapshot) => {
+        const data = {
+          auth: Object.keys(snapshot.val()),
+          cards: Object.keys(snapshot.val()).map(() => { return new CardExperience() })
+        }
+        setSelectedCard({
+          selected: null,
+          auth: data.auth,
+          cards: data.cards
+        })
+        app(data.auth, data.cards)
+      }
+      , {
+        onlyOnce: true
+      })
+
+  }, [app, setSelectedCard])
+
+  const firstRender = useCallback(() => {
+    const getAuth = () => {
+      const db = getDatabase()._instanceStarted
+      ref_data(getDatabase(), `/`)
+      if (db)
+        getData()
+      else {
+        console.log('db not loaded')
+        setTimeout(() => getAuth(), 500)
+      }
+    }
+    getAuth()
+  }, [getData])
+
 
   useEffect(() => {
-    // console.log(firebaseLoader)
-  }, [firebaseLoader])
+    if (window.location.pathname !== '/import') {
+      firstRender()
+    }
+  }, [firstRender])
 
   return (
     <div className="App">
-
-      <DragAndDrop files={files} setFiles={setFiles} />
-      <Firebase setFirebaseLoader={setFirebaseLoader} />
-      <div id="container"></div>
-
-
+      <Firebase />
       <BrowserRouter>
         <Routes>
-          <Route path="/display" element={<Model files={files} firebaseLoader={firebaseLoader} source={null} />} />
-          <Route path="/" element={<Model files={files}
-            source={[
-              {
-                name: 'fox',
-                type: 'gltfModel',
-                path: '/Fox.glb'
-              }
-            ]} />}></Route>
-          <Route path="/meka3d" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'meka3d',
-              type: 'gltfModel',
-              path: '/Meka3D.glb'
-            }
-          ]} />}></Route>
-          <Route path="/meta-adventures" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'metaadventures',
-              type: 'gltfModel',
-              path: '/META_ADVENTURES.glb'
-            }
-          ]} />}></Route>
-          <Route path="/metakonz" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'metakonz',
-              type: 'gltfModel',
-              path: '/METAKONZ.glb'
-            }
-          ]} />}></Route>
-          <Route path="/metalegends" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'metalegends',
-              type: 'gltfModel',
-              path: '/METALEGENDS.glb'
-            }
-          ]} />}></Route>
-          <Route path="/uaf" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'uaf',
-              type: 'gltfModel',
-              path: '/UAF.glb'
-            }
-          ]} />}></Route>
-          <Route path="/flayed" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'flayed',
-              type: 'gltfModel',
-              path: '/FLAYED.glb'
-            }
-          ]} />}></Route>
-          <Route path="/bots-skull" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'botsskull',
-              type: 'gltfModel',
-              path: '/BotsSkull.glb'
-            }
-          ]} />}></Route>
-          <Route path="/urban-token" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'Urban_token',
-              type: 'gltfModel',
-              path: '/Urban_token.glb'
-            }
-          ]} />}></Route>
-          <Route path="/logo" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'logo',
-              type: 'gltfModel',
-              path: '/LOGO.glb'
-            }
-          ]} />}></Route>
-          <Route path="/proserpine" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'Leo_Caillard_Proserpine',
-              type: 'gltfModel',
-              path: '/Leo_Caillard_Proserpine.glb'
-            }
-          ]} />}></Route>
-          <Route path="/caesar-statue" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'Leo_Caillard_CaesarStatue',
-              type: 'gltfModel',
-              path: '/Leo_Caillard_CaesarStatue.glb'
-            }
-          ]} />}></Route>
-          <Route path="/caesar" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'Leo_Caillard_Caesar',
-              type: 'gltfModel',
-              path: '/Leo_Caillard_Caesar.glb'
-            }
-          ]} />}></Route>
-          <Route path="/meta-adventure-new" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'meta_adventures_new',
-              type: 'gltfModel',
-              path: '/META_ADVENTURE_NEW.glb'
-            }
-          ]} />}></Route>
-          <Route path="/flayed-gold" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'flayed_gold',
-              type: 'gltfModel',
-              path: '/FLAYED_GOLD.glb'
-            }
-          ]} />}></Route>
-          <Route path="/wolf" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'wolf',
-              type: 'gltfModel',
-              path: '/Wolf.glb'
-            }
-          ]} />}></Route>
-          <Route path="/spider" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'spider',
-              type: 'gltfModel',
-              path: '/Spider.glb'
-            }
-          ]} />}></Route>
-          <Route path="/deer" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'deer',
-              type: 'gltfModel',
-              path: '/Deer.glb'
-            }
-          ]} />}></Route>
-          <Route path="/dragon" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'dragon',
-              type: 'gltfModel',
-              path: '/Dragon.glb'
-            }
-          ]} />}></Route>
-          <Route path="/mannequin" element={<Model files={files} firebaseLoader={firebaseLoader} source={[
-            {
-              name: 'mannequin',
-              type: 'gltfModel',
-              path: '/Mannequin.glb'
-            }
-          ]} />}></Route>
+          <Route path="/" element={<Home selectedCard={selectedCard} setSelectedCard={setSelectedCard} />} />
+          <Route path='*' exact='true' element={<Navigate to='/' />} />
+          <Route path="/import" element={<Preview setNewModel={setNewModel} />} />
+          <Route path="/display" element={<Model modelFiles={modelFiles} cards={selectedCard.cards} />} />
+          {newModel &&
+            <>
+              <Route path={`/${newModel.id}/edit`} element={<Model Card={newModel.card} Model={newModel.model} Id={newModel.id} />} />
+              <Route path={`/${newModel.id}`} element={<Preview card={newModel.card} modelId={newModel.id} isNew={true} />} />
+            </>
+          }
+          {selectedCard.auth && selectedCard.auth.map((id, index) => {
+            return (
+              <React.Fragment key={index}>
+                <Route path={`/${id}`}
+                  element={<Preview settings={settings} card={selectedCard.cards[index]} modelId={id} />} />
+                <Route path={`/${id}/edit`} element={<Model setSettings={setSettings} Card={selectedCard.cards[index]} Model={modelFiles[id]} Id={id} />} />
+              </React.Fragment>
+            )
+          })
+          }
         </Routes>
       </BrowserRouter>
     </div>
