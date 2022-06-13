@@ -32,7 +32,7 @@ export default class Renderer {
     setInstance() {
         this.instance = new THREE.WebGLRenderer({
             canvas: this.canvas,
-            antialias: true,
+            antialias: false,
             alpha: true,
             powerPreference: 'high-performance'
         })
@@ -44,7 +44,7 @@ export default class Renderer {
         // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
         // this.instance.setClearColor('#ffffff')
         this.instance.setSize(this.sizes.width, this.sizes.height)
-        // this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
+        this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
     }
 
     resize() {

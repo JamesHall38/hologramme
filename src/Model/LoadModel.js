@@ -268,16 +268,20 @@ export default class LoadModel {
 
         if (this.isCard) {
             this.model.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
+                if (child instanceof THREE.Mesh)
                     child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-                    this.experience.removeLoadingBox()
-                    this.scene.add(this.model)
-                    if (this.isCard)
-                        window.requestAnimationFrame(() => {
-                            this.time.tick()
-                        })
-                }
             })
+            this.experience.removeLoadingBox()
+            if (this.isCard)
+                window.requestAnimationFrame(() => {
+                    this.time.tick()
+                })
+
+            this.scene.add(this.model)
+            if (this.isCard)
+                window.requestAnimationFrame(() => {
+                    this.time.tick()
+                })
 
             // window.requestAnimationFrame(() => {
             //     this.time.tick()
