@@ -89,11 +89,10 @@ function App() {
         , {
           onlyOnce: true
         })
-
     }
   }, [])
 
-  const getModelsOneByOne = useCallback((cards, sizesArray, len) => {
+  const getModelsOneByOne = useCallback((cards, sizesArray, len, timeouts) => {
     let oldCard
     if (sizesArray.length === len) {
       sizesArray.forEach((element, i) => {
@@ -105,25 +104,38 @@ function App() {
             getModel(element.id, card)
             return
           }
-          else if (oldCard.loaded === true) {
+          else if (i === sizesArray.length - 1 && oldCard.loaded) {
+            console.log('get model and info ', element.id)
+            const card = cards[element.index]
+            oldCard = card
+            getModel(element.id, card)
+            return timeouts.forEach((timeout) => {
+              console.log('clear timeout')
+              clearTimeout(timeout)
+            })
+          }
+          else if (oldCard.loaded) {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
             getModel(element.id, card)
             return
           }
-          else
-            setTimeout(() => { retryFun() }, 500)
+          else {
+            console.log('retry')
+            timeouts.push(setTimeout(() => { retryFun() }, 500))
+          }
         }
         retryFun()
       })
     }
-    else
-      setTimeout(() => { getModelsOneByOne(cards, sizesArray, len) }, 500)
-
+    else {
+      console.log('retry')
+      timeouts.push(setTimeout(() => { getModelsOneByOne(cards, sizesArray, len, timeouts) }, 500))
+    }
   }, [getModel])
 
-  const getModelsFromFirebase = useCallback((auth, cards) => {
+  const getModelsFromFirebase = useCallback((auth, cards, timeouts) => {
     if (auth && cards) {
       if (cards.length) {
         const sizesArray = []
@@ -138,12 +150,15 @@ function App() {
           getCardInfo(id, cards[index])
         })
 
-        getModelsOneByOne(cards, sizesArray, auth.length)
+        getModelsOneByOne(cards, sizesArray, auth.length, timeouts)
 
       }
-      else
-        setTimeout(() => { getModelsFromFirebase() }, 500)
+      else {
+        console.log('retry')
+        timeouts.push(setTimeout(() => { getModelsFromFirebase() }, 500))
+      }
     }
+
   }, [getCardInfo, getModelsOneByOne])
 
   const handleCardSelection = (auth, cards, card, index) => {
@@ -175,9 +190,9 @@ function App() {
       card.camera.setControls()
       card.canvas.className = 'selected'
 
-      // window.requestAnimationFrame(() => {
-      card.time.tick()
-      // })
+      window.requestAnimationFrame(() => {
+        card.time.tick()
+      })
 
       setSelectedCard({
         selected: auth[index],
@@ -187,8 +202,8 @@ function App() {
     }
   }
 
-  const app = useCallback((auth, cards) => {
-    getModelsFromFirebase(auth, cards)
+  const app = useCallback((auth, cards, timeouts) => {
+    getModelsFromFirebase(auth, cards, timeouts)
 
     if (cards)
       cards.forEach((card, index) => card.canvas.addEventListener('click', () => handleCardSelection(auth, cards, card, index)))
@@ -202,7 +217,7 @@ function App() {
     }
   }, [getModelsFromFirebase])
 
-  const getData = useCallback(() => {
+  const getData = useCallback((timeouts) => {
     const db = getDatabase()
     onValue(ref_data(db, `users/`),
       (snapshot) => {
@@ -215,7 +230,7 @@ function App() {
           auth: data.auth,
           cards: data.cards
         })
-        app(data.auth, data.cards)
+        app(data.auth, data.cards, timeouts)
       }
       , {
         onlyOnce: true
@@ -223,15 +238,15 @@ function App() {
 
   }, [app, setSelectedCard])
 
-  const firstRender = useCallback(() => {
+  const firstRender = useCallback((timeouts) => {
     const getAuth = () => {
       const db = getDatabase()._instanceStarted
       ref_data(getDatabase(), `/`)
       if (db)
-        getData()
+        getData(timeouts)
       else {
         console.log('db not loaded')
-        setTimeout(() => getAuth(), 500)
+        timeouts.push(setTimeout(() => getAuth(), 500))
       }
     }
     getAuth()
@@ -239,8 +254,10 @@ function App() {
 
 
   useEffect(() => {
+    const timeouts = []
+
     if (window.location.pathname !== '/import') {
-      firstRender()
+      firstRender(timeouts)
     }
   }, [firstRender])
 

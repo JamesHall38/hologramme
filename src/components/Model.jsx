@@ -33,7 +33,7 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
         style.overflow = 'hidden'
     }
 
-    const getAuth = useCallback(() => {
+    const getAuth = useCallback((timeouts) => {
         const db = getApps().length !== 0
         if (db) {
             const db = getDatabase()
@@ -46,12 +46,14 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
         }
         else {
             console.log('db not loaded')
-            setTimeout(() => getAuth(), 200)
+            timeouts.push(setTimeout(() => getAuth(), 200))
         }
+        return timeouts
     }, [])
 
 
     useEffect(() => {
+        const timeouts = []
         console.log('useEffect')
         if (model) {
             editExperience.id = idModel
@@ -60,8 +62,13 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
         }
         else {
             window.scroll(0, 0)
-            getAuth()
+            timeouts.splice(0, timeouts.length, ...getAuth(timeouts))
         }
+        return timeouts.forEach((timeout) => {
+            console.log('clear timeout')
+            clearTimeout(timeout)
+        }
+        )
     }, [getAuth, card, model, exp, editExperience, idModel])
 
     useEffect(() => {

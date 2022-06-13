@@ -273,9 +273,9 @@ export default class LoadModel {
                     this.experience.removeLoadingBox()
                     this.scene.add(this.model)
                     if (this.isCard)
-                        // window.requestAnimationFrame(() => {
-                        this.time.tick()
-                    // })
+                        window.requestAnimationFrame(() => {
+                            this.time.tick()
+                        })
                 }
             })
 
@@ -353,9 +353,9 @@ export default class LoadModel {
 
         this.setAnimation()
         if (this.isCard)
-            // window.requestAnimationFrame(() => {
-            this.time.tick()
-        // })
+            window.requestAnimationFrame(() => {
+                this.time.tick()
+            })
     }
 
     setSettings = () => {
@@ -423,8 +423,10 @@ export default class LoadModel {
                             return group
                         })
                     }
-                    else
+                    else {
+                        console.log('retry')
                         setTimeout(waitForCard, 200)
+                    }
                 }
                 waitForCard()
             }
