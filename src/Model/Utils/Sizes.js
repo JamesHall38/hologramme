@@ -32,18 +32,18 @@ export default class Sizes extends EventEmitter {
             this.width = this.innerHeight / 3
             this.height = this.innerHeight / 2
         }
-        // this.pixelRatio = Math.min(window.devicePixelRatio, 2)
+        this.pixelRatio = Math.min(window.devicePixelRatio, 2)
     }
     cardReset() {
         this.width = this.innerHeight / 3
         this.height = this.innerHeight / 2
-        // this.pixelRatio = Math.min(window.devicePixelRatio, 2)
+        this.pixelRatio = Math.min(window.devicePixelRatio, 2)
         this.trigger('resize')
     }
     cardResize() {
         this.width = this.innerHeight / 2
         this.height = this.innerHeight * 0.8
-        // this.pixelRatio = Math.min(window.devicePixelRatio, 2)
+        this.pixelRatio = Math.min(window.devicePixelRatio, 2)
         this.trigger('resize')
     }
 }
