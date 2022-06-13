@@ -256,21 +256,21 @@ export default class LoadModel {
         this.model.position.copy(center).multiplyScalar(-1)
         this.model.position.y = -(size.y * 0.5)
         // updateAllMaterials(this.scene, debugObject, environmentMap)
-        this.scene.traverse((child) => {
-            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                child.material.envMap = this.resources.environmentMapTexture
-                // child.material.envMapIntensity = debugObject.envMapIntensity
-                child.material.needsUpdate = true
-                child.castShadow = true
-                child.receiveShadow = true
-            }
-        })
+        // this.scene.traverse((child) => {
+        //     if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+        //         child.material.envMap = this.resources.environmentMapTexture
+        //         // child.material.envMapIntensity = debugObject.envMapIntensity
+        //         child.material.needsUpdate = true
+        //         child.castShadow = true
+        //         child.receiveShadow = true
+        //     }
+        // })
 
         if (this.isCard) {
-            this.model.traverse((child) => {
-                if (child instanceof THREE.Mesh)
-                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-            })
+            // this.model.traverse((child) => {
+            //     if (child instanceof THREE.Mesh)
+            //         child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
+            // })
             this.experience.removeLoadingBox()
             if (this.isCard)
                 window.requestAnimationFrame(() => {
