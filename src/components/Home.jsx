@@ -7,9 +7,13 @@ import { useNavigate } from 'react-router-dom'
 const Home = ({ selectedCard, setSelectedCard }) => {
     const navigate = useNavigate()
 
-    document.body.style.padding = '0 50px 0 50px'
-    document.body.style.overflow = 'visible'
-    document.body.style.flexDirection = 'row'
+    // document.body.style.padding = '0 50px 0 50px'
+    // document.body.style.overflow = 'visible'
+    const containerStyle = document.getElementById('container').style
+    containerStyle.flexDirection = 'row'
+    // containerStyle.position = 'absolute'
+
+    document.body.style.height = '100vh'
 
     if (selectedCard)
         if (selectedCard.cards)

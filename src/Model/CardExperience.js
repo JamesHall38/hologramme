@@ -137,9 +137,9 @@ export default class CardExperience extends EventEmitter {
         this.clicked = false
         this.id = null
 
+
         this.canvas = document.createElement('canvas')
         this.canvas.style.paddingBottom = '5px'
-
 
         // this.canvas.className = `webgl${this.num}`
         // button.innerHTML = "Retour"

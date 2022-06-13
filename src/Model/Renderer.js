@@ -67,7 +67,7 @@ export default class Renderer {
         this.instance.shadowMap.type = THREE.PCFSoftShadowMap
         // this.instance.setClearColor('#211d20')
         this.instance.setSize(this.sizes.width, this.sizes.height)
-        this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
+        // this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
 
         this.instance.domElement.style.position = 'fixed'
         this.instance.domElement.style.top = '0'
@@ -118,7 +118,7 @@ export default class Renderer {
 
     resize() {
         this.instance.setSize(this.sizes.width, this.sizes.height)
-        this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
+        // this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
     }
 
     update() {

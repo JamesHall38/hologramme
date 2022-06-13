@@ -14,7 +14,18 @@ export default class Renderer {
 
         this.setInstance()
 
-        document.body.appendChild(this.instance.domElement)
+
+        this.container = document.getElementById('container')
+        this.container.className = 'container'
+
+        // this.containerner = document.createElement('div')
+        // this.containerner.className = 'containerner'
+        // this.container.appendChild(this.containerner)
+
+        this.container.appendChild(this.instance.domElement)
+
+
+        document.body.appendChild(this.container)
 
     }
 
@@ -33,12 +44,12 @@ export default class Renderer {
         // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
         // this.instance.setClearColor('#ffffff')
         this.instance.setSize(this.sizes.width, this.sizes.height)
-        this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
+        // this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
     }
 
     resize() {
         this.instance.setSize(this.sizes.width, this.sizes.height)
-        this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
+        // this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
     }
 
     update() {

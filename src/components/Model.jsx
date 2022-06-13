@@ -26,10 +26,11 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
     const [onlyOnce, setOnlyOnce] = useState(true)
 
 
-    document.body.style.flexDirection = 'row'
-    document.body.style.padding = '0'
+    const style = document.getElementById('container').style
+    style.flexDirection = 'row'
+    style.padding = '0'
     if (window.location.pathname === '/display') {
-        document.body.style.overflow = 'hidden'
+        style.overflow = 'hidden'
     }
 
     const getAuth = useCallback(() => {
@@ -65,6 +66,7 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
 
     useEffect(() => {
         if (displayModeData && onlyOnce) {
+            console.log('onlyOnce')
             setOnlyOnce(false)
             const experience = new Experience(displayModeData.modelType)
             setExp({ experience: experience })
@@ -73,29 +75,30 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
 
     const watchDisplaySettings = useCallback(() => {
         const experience = exp.experience
-        if (experience && modelFiles) {
-            const data = displayModeData
-            experience.files = modelFiles[data.id]
-            if (cards && cards[0].id)
-                experience.settings = cards.find(card => card.id === data.id).settings
+        // if (experience && modelFiles) {
+        const data = displayModeData
+        console.log('succed watch display settings', data)
+        experience.files = modelFiles[data.id]
+        if (cards && cards[0].id)
+            experience.settings = cards.find(card => card.id === data.id).settings
 
-            if (experience.loadModel) {
-                console.log(experience.id, data.id)
-                if (experience.id !== data.id && experience.resources.modelActive) {
-                    experience.resources.modelActive = false
-                    experience.loadModel.model.visible = false
-                    experience.resources.addGLTF(modelFiles[displayModeData.id])
-                }
-
-                experience.loadModel.playing = data.animation
-                console.log(data.animation)
+        if (experience.loadModel) {
+            console.log(experience.id, data.id)
+            if (experience.id !== data.id && experience.resources.modelActive) {
+                experience.resources.modelActive = false
+                experience.loadModel.model.visible = false
+                experience.resources.addGLTF(modelFiles[displayModeData.id])
             }
-            experience.id = data.id
+
+            experience.loadModel.playing = data.animation
+            console.log(data.animation)
         }
-        else {
-            console.log('retry')
-            setTimeout(() => watchDisplaySettings(), 200)
-        }
+        experience.id = data.id
+        // }
+        // else {
+        //     console.log('retry')
+        //     setTimeout(() => watchDisplaySettings(), 200)
+        // }
     }, [modelFiles, cards, exp, displayModeData])
 
     useEffect(() => {

@@ -85,13 +85,18 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
     // EXPERIENCE
     const exp = useMemo(() => {
         window.scroll(0, 0)
+        const bodyStyle = document.body.style
+        const containerStyle = document.getElementById('container').style
+        containerStyle.height = '100%'
+        containerStyle.position = 'relative'
+        // style.wrap = 'wrap'
         if (window.innerWidth < 750)
-            document.body.style.flexDirection = 'column-reverse'
+            bodyStyle.flexDirection = 'column-reverse'
         else {
-            document.body.style.flexDirection = 'row-reverse'
-            document.body.style.padding = '0'
-            document.body.style.width = '100vw'
-            document.body.style.justifyContent = 'center'
+            bodyStyle.flexDirection = 'row-reverse'
+            bodyStyle.padding = '0'
+            bodyStyle.width = '100vw'
+            bodyStyle.justifyContent = 'center'
         }
 
         if (card) {
@@ -246,7 +251,9 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
     }
 
     return (
-        <div className='container' id='card' >
+        <div style={{
+            display: 'flex', flexDirection: 'column', position: 'relative', margin: '20px', color: 'white', top: '0px'
+        }} id='card' >
             <ThemeProvider theme={theme}>
                 <Card className='responsiveCard' >
                     <CardContent style={{ height: '100px', width: '200px' }} >
