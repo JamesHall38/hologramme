@@ -175,9 +175,9 @@ function App() {
       card.camera.setControls()
       card.canvas.className = 'selected'
 
-      window.requestAnimationFrame(() => {
-        card.time.tick()
-      })
+      // window.requestAnimationFrame(() => {
+      card.time.tick()
+      // })
 
       setSelectedCard({
         selected: auth[index],

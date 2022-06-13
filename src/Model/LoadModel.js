@@ -242,23 +242,6 @@ export default class LoadModel {
     setModel() {
 
         console.log(this.model)
-        if (this.isCard) {
-            this.model.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
-                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-                    this.experience.removeLoadingBox()
-                    this.scene.add(this.model)
-                }
-            })
-
-            // window.requestAnimationFrame(() => {
-            //     this.time.tick()
-            // })
-
-        }
-        else {
-            this.scene.add(this.model)
-        }
         // this.model.rotation.x = -Math.PI
         this.model.children[0].visible = true
         const borderBox = new THREE.Box3().setFromObject(this.model)
@@ -283,6 +266,31 @@ export default class LoadModel {
             }
         })
 
+        if (this.isCard) {
+            this.model.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
+                    this.experience.removeLoadingBox()
+                    this.scene.add(this.model)
+                    if (this.isCard)
+                        // window.requestAnimationFrame(() => {
+                        this.time.tick()
+                    // })
+                }
+            })
+
+            // window.requestAnimationFrame(() => {
+            //     this.time.tick()
+            // })
+
+        }
+        else {
+            this.scene.add(this.model)
+            if (this.isCard)
+                window.requestAnimationFrame(() => {
+                    this.time.tick()
+                })
+        }
         // const button = this.experience.world.card.model.children.find(child => child.name === 'Button')
         // button.material.visible = false
         // const buttonLED = this.experience.world.card.model.children.find(child => child.name === 'AnimationLED')
@@ -345,9 +353,9 @@ export default class LoadModel {
 
         this.setAnimation()
         if (this.isCard)
-            window.requestAnimationFrame(() => {
-                this.time.tick()
-            })
+            // window.requestAnimationFrame(() => {
+            this.time.tick()
+        // })
     }
 
     setSettings = () => {
