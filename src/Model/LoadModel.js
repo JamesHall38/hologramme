@@ -152,7 +152,7 @@ export default class LoadModel {
 
             this.model = this.resource.re.scene
             // this.scene.add(this.model)
-            this.setModel()
+            // this.setModel()
 
         }
         else if (this.experience.modelType === 'img') {
@@ -250,7 +250,7 @@ export default class LoadModel {
         const size = borderBox.getSize(new THREE.Vector3())
 
         const maxAxis = Math.max(size.x, size.y, size.z)
-        this.model.scale.multiplyScalar(0.01 / maxAxis)
+        this.model.scale.multiplyScalar(1 / maxAxis)
         borderBox.setFromObject(this.model)
         borderBox.getCenter(center)
         borderBox.getSize(size)
