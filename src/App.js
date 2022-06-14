@@ -42,7 +42,7 @@ function App() {
 
     const refModel = ref_storage(storage, `users/${id}`)
     const model = await getBlob(refModel)
-    // const arrayBuffer = await model.arrayBuffer()
+    const arrayBuffer = await model.arrayBuffer()
     // // .then((model) => {
     // console.log('model = ', card.modelType)
     // if (card.modelType === 'obj')
