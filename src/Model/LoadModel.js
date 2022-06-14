@@ -151,8 +151,8 @@ export default class LoadModel {
             console.log(this.resource.re)
 
             this.model = this.resource.re.scene
-            this.scene.add(this.model)
-            // this.setModel()
+            // this.scene.add(this.model)
+            this.setModel()
 
         }
         else if (this.experience.modelType === 'img') {
@@ -243,47 +243,49 @@ export default class LoadModel {
     setModel() {
 
         console.log(this.model)
-        // this.model.rotation.x = -Math.PI
-        // this.model.children[0].visible = true
-        // const borderBox = new THREE.Box3().setFromObject(this.model)
-        // const center = borderBox.getCenter(new THREE.Vector3())
-        // const size = borderBox.getSize(new THREE.Vector3())
+        this.model.rotation.x = -Math.PI
+        this.model.children[0].visible = true
+        const borderBox = new THREE.Box3().setFromObject(this.model)
+        const center = borderBox.getCenter(new THREE.Vector3())
+        const size = borderBox.getSize(new THREE.Vector3())
 
-        // const maxAxis = Math.max(size.x, size.y, size.z)
-        // this.model.scale.multiplyScalar(1.0 / maxAxis)
-        // borderBox.setFromObject(this.model)
-        // borderBox.getCenter(center)
-        // borderBox.getSize(size)
-        // this.model.position.copy(center).multiplyScalar(-1)
-        // this.model.position.y = -(size.y * 0.5)
+        const maxAxis = Math.max(size.x, size.y, size.z)
+        this.model.scale.multiplyScalar(0.1 / maxAxis)
+        borderBox.setFromObject(this.model)
+        borderBox.getCenter(center)
+        borderBox.getSize(size)
+        this.model.position.copy(center).multiplyScalar(-1)
+        this.model.position.y = -(size.y * 0.5)
         // updateAllMaterials(this.scene, debugObject, environmentMap)
-        // this.scene.traverse((child) => {
-        //     if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-        //         child.material.envMap = this.resources.environmentMapTexture
-        //         // child.material.envMapIntensity = debugObject.envMapIntensity
-        //         child.material.needsUpdate = true
-        //         child.castShadow = true
-        //         child.receiveShadow = true
-        //     }
-        // })
+        this.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                child.material.envMap = this.resources.environmentMapTexture
+                // child.material.envMapIntensity = debugObject.envMapIntensity
+                child.material.needsUpdate = true
+                child.castShadow = true
+                child.receiveShadow = true
+            }
+        })
 
         if (this.isCard) {
-            // this.model.traverse((child) => {
-            //     if (child instanceof THREE.Mesh) {
-            //         child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-            //         console.log(child)
-            //     }
-            // })
-            if (this.isCard)
-                window.requestAnimationFrame(() => {
-                    this.time.tick()
-                })
+            this.model.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
+                    console.log(child)
+                }
+            })
             this.scene.add(this.model)
             this.experience.removeLoadingBox()
-            if (this.isCard)
-                window.requestAnimationFrame(() => {
-                    this.time.tick()
-                })
+            window.requestAnimationFrame(() => {
+                this.time.tick()
+            })
+            this.model.scale.multiplyScalar(10)
+
+            window.requestAnimationFrame(() => {
+                this.time.tick()
+            })
+
+
 
 
             // window.requestAnimationFrame(() => {
@@ -298,6 +300,7 @@ export default class LoadModel {
                     this.time.tick()
                 })
         }
+
         // const button = this.experience.world.card.model.children.find(child => child.name === 'Button')
         // button.material.visible = false
         // const buttonLED = this.experience.world.card.model.children.find(child => child.name === 'AnimationLED')
