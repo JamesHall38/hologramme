@@ -24,6 +24,7 @@ import {
   getStorage,
   ref as ref_storage,
   getBytes,
+  getBlob,
   getMetadata
 } from "firebase/storage"
 
@@ -34,32 +35,35 @@ function App() {
   const [newModel, setNewModel] = useState(false)
   const [settings, setSettings] = useState({})
 
-  const getModel = useCallback((id, card) => {
+  const getModel = useCallback(async (id, card) => {
     const storage = getStorage()
     // if (card.modelType === 'obj') {
     console.log('getModel')
 
     const refModel = ref_storage(storage, `users/${id}`)
-    getBytes(refModel)
-      .then((model) => {
-        console.log('model = ', card.modelType)
-        // if (card.modelType === 'obj')
-        //   card.resources.addOBJ(model)
-        // else if (card.modelType === 'img')
-        //   card.resources.addImg(model)
-        // else if (card.modelType === 'vid')
-        //   card.resources.addVid(model)
-        // else if (card.modelType === 'gltf')
-        //   card.resources.addGLTF(model)
-        // else if (card.modelType === 'fbx')
-        //   card.resources.addFBX(model)
+    const model = await getBlob(refModel)
+    const arrayBuffer = await model.arrayBuffer()
+    // .then((model) => {
+    console.log('model = ', card.modelType)
+    if (card.modelType === 'obj')
+      card.resources.addOBJ(arrayBuffer)
+    else if (card.modelType === 'img')
+      card.resources.addImg(arrayBuffer)
+    else if (card.modelType === 'vid')
+      card.resources.addVid(arrayBuffer)
+    else if (card.modelType === 'gltf')
+      card.resources.addGLTF(arrayBuffer)
+    else if (card.modelType === 'fbx')
+      card.resources.addFBX(arrayBuffer)
 
-        // card.loaded = true
-        setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+
+
+    card.loaded = true
+    setModelFiles(oldFiles => ({ ...oldFiles, [id]: arrayBuffer }))
+    // })
+    // .catch((error) => {
+    //   console.log(error)
+    // })
     // }
     // else if (card.modelType === 'img') {
     //   getBytes(ref_storage(storage, `users/${id}.jpg`))
