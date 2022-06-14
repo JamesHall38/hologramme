@@ -151,7 +151,8 @@ export default class LoadModel {
             console.log(this.resource.re)
 
             this.model = this.resource.re.scene
-            this.setModel()
+            this.scene.add(this.model)
+            // this.setModel()
 
         }
         else if (this.experience.modelType === 'img') {
@@ -243,18 +244,18 @@ export default class LoadModel {
 
         console.log(this.model)
         // this.model.rotation.x = -Math.PI
-        this.model.children[0].visible = true
-        const borderBox = new THREE.Box3().setFromObject(this.model)
-        const center = borderBox.getCenter(new THREE.Vector3())
-        const size = borderBox.getSize(new THREE.Vector3())
+        // this.model.children[0].visible = true
+        // const borderBox = new THREE.Box3().setFromObject(this.model)
+        // const center = borderBox.getCenter(new THREE.Vector3())
+        // const size = borderBox.getSize(new THREE.Vector3())
 
-        const maxAxis = Math.max(size.x, size.y, size.z)
-        this.model.scale.multiplyScalar(1.0 / maxAxis)
-        borderBox.setFromObject(this.model)
-        borderBox.getCenter(center)
-        borderBox.getSize(size)
-        this.model.position.copy(center).multiplyScalar(-1)
-        this.model.position.y = -(size.y * 0.5)
+        // const maxAxis = Math.max(size.x, size.y, size.z)
+        // this.model.scale.multiplyScalar(1.0 / maxAxis)
+        // borderBox.setFromObject(this.model)
+        // borderBox.getCenter(center)
+        // borderBox.getSize(size)
+        // this.model.position.copy(center).multiplyScalar(-1)
+        // this.model.position.y = -(size.y * 0.5)
         // updateAllMaterials(this.scene, debugObject, environmentMap)
         // this.scene.traverse((child) => {
         //     if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
@@ -268,20 +269,22 @@ export default class LoadModel {
 
         if (this.isCard) {
             // this.model.traverse((child) => {
-            //     if (child instanceof THREE.Mesh)
+            //     if (child instanceof THREE.Mesh) {
             //         child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
+            //         console.log(child)
+            //     }
             // })
+            if (this.isCard)
+                window.requestAnimationFrame(() => {
+                    this.time.tick()
+                })
+            this.scene.add(this.model)
             this.experience.removeLoadingBox()
             if (this.isCard)
                 window.requestAnimationFrame(() => {
                     this.time.tick()
                 })
 
-            this.scene.add(this.model)
-            if (this.isCard)
-                window.requestAnimationFrame(() => {
-                    this.time.tick()
-                })
 
             // window.requestAnimationFrame(() => {
             //     this.time.tick()
@@ -375,10 +378,16 @@ export default class LoadModel {
     setAnimation() {
         if (this.resource.re.animations.length > 0) {
             this.animation = {}
+            const timeouts = []
 
             if (this.isCard) {
                 const waitForCard = () => {
                     if (this.experience.world.card) {
+
+                        timeouts.forEach(timeout => {
+                            console.log('timeout')
+                            clearTimeout(timeout)
+                        })
 
                         const logo = this.experience.world.card.model.children.find(child => child.name === 'LOGO')
                         logo.material.visible = false
@@ -429,7 +438,7 @@ export default class LoadModel {
                     }
                     else {
                         console.log('retry')
-                        setTimeout(waitForCard, 200)
+                        timeouts.push(setTimeout(waitForCard, 200))
                     }
                 }
                 waitForCard()

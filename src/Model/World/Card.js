@@ -90,11 +90,11 @@ export default class Card {
                         )
                     }
                 }
-                this.scene.add(this.model)
-                // window.requestAnimationFrame(() => {
-                this.experience.time.tick()
-                // })
             }
+        })
+        this.scene.add(this.model)
+        window.requestAnimationFrame(() => {
+            this.experience.time.tick()
         })
     }
 }
