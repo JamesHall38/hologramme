@@ -219,9 +219,9 @@ export default class Resources extends EventEmitter {
     }
 
     importedLoaded(file) {
-        this.items['file'] = file
-        this.modelActive = true
-        // this.trigger('ready')
-        this.trigger('importedReady')
+        // this.items['file'] = file
+        // this.modelActive = true
+        // // this.trigger('ready')
+        // this.trigger('importedReady')
     }
 }
