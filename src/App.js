@@ -45,16 +45,18 @@ function App() {
     const arrayBuffer = await model.arrayBuffer()
     // // .then((model) => {
     // console.log('model = ', card.modelType)
-    // if (card.modelType === 'obj')
-    //   card.resources.addOBJ(arrayBuffer)
-    // else if (card.modelType === 'img')
-    //   card.resources.addImg(arrayBuffer)
-    // else if (card.modelType === 'vid')
-    //   card.resources.addVid(arrayBuffer)
-    // else if (card.modelType === 'gltf')
-    //   card.resources.addGLTF(arrayBuffer)
-    // else if (card.modelType === 'fbx')
-    //   card.resources.addFBX(arrayBuffer)
+
+
+    if (card.modelType === 'obj')
+      card.resources.addOBJ(arrayBuffer)
+    else if (card.modelType === 'img')
+      card.resources.addImg(arrayBuffer)
+    else if (card.modelType === 'vid')
+      card.resources.addVid(arrayBuffer)
+    else if (card.modelType === 'gltf')
+      card.resources.addGLTF(arrayBuffer)
+    else if (card.modelType === 'fbx')
+      card.resources.addFBX(arrayBuffer)
 
 
 

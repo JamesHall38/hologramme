@@ -50,11 +50,12 @@ export default class Resources extends EventEmitter {
     // }
 
     addGLTF(arrayBuffer) {
-        this.loaders.gltfLoader.parse(
-            arrayBuffer, '', (file) => {
-                this.importedLoaded(file)
-            }
-        )
+        console.log(arrayBuffer)
+        // this.loaders.gltfLoader.parse(
+        //     arrayBuffer, '', (file) => {
+        //         this.importedLoaded(file)
+        //     }
+        // )
     }
 
     addOBJ(arrayBuffer) {
