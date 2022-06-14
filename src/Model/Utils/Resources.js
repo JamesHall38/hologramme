@@ -51,11 +51,11 @@ export default class Resources extends EventEmitter {
 
     addGLTF(arrayBuffer) {
         // console.log(arrayBuffer)
-        this.loaders.gltfLoader.parse(
-            arrayBuffer, '', (file) => {
-                this.importedLoaded(file)
-            }
-        )
+        // this.loaders.gltfLoader.parse(
+        //     arrayBuffer, '', (file) => {
+        //         this.importedLoaded(file)
+        //     }
+        // )
     }
 
     addOBJ(arrayBuffer) {
@@ -217,9 +217,9 @@ export default class Resources extends EventEmitter {
     }
 
     importedLoaded(file) {
-        // this.items['file'] = file
-        // this.modelActive = true
-        // // this.trigger('ready')
-        // this.trigger('importedReady')
+        this.items['file'] = file
+        this.modelActive = true
+        // this.trigger('ready')
+        this.trigger('importedReady')
     }
 }
