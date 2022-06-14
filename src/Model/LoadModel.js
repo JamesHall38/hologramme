@@ -152,7 +152,7 @@ export default class LoadModel {
 
             this.model = this.resource.re.scene
             // this.scene.add(this.model)
-            // this.setModel()
+            this.setModel()
 
         }
         else if (this.experience.modelType === 'img') {

@@ -60,7 +60,7 @@ function App() {
 
 
 
-    // card.loaded = true
+    card.loaded = true
     setModelFiles(oldFiles => ({ ...oldFiles, [id]: arrayBuffer }))
     // })
     // .catch((error) => {
