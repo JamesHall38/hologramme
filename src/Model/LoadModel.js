@@ -250,7 +250,7 @@ export default class LoadModel {
         const size = borderBox.getSize(new THREE.Vector3())
 
         const maxAxis = Math.max(size.x, size.y, size.z)
-        this.model.scale.multiplyScalar(0.1 / maxAxis)
+        this.model.scale.multiplyScalar(0.01 / maxAxis)
         borderBox.setFromObject(this.model)
         borderBox.getCenter(center)
         borderBox.getSize(size)
@@ -279,7 +279,7 @@ export default class LoadModel {
             window.requestAnimationFrame(() => {
                 this.time.tick()
             })
-            this.model.scale.multiplyScalar(10)
+            // this.model.scale.multiplyScalar(10)
 
             window.requestAnimationFrame(() => {
                 this.time.tick()
