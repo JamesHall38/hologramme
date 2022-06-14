@@ -59,7 +59,7 @@ function App() {
 
 
     // card.loaded = true
-    // setModelFiles(oldFiles => ({ ...oldFiles, [id]: arrayBuffer }))
+    setModelFiles(oldFiles => ({ ...oldFiles, [id]: arrayBuffer }))
     // })
     // .catch((error) => {
     //   console.log(error)
