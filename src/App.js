@@ -37,26 +37,27 @@ function App() {
   const getModel = useCallback((id, card) => {
     const storage = getStorage()
     // if (card.modelType === 'obj') {
-    getBytes(ref_storage(storage, `users/${id}`))
-      .then((model) => {
-        console.log('model = ', card.modelType)
-        if (card.modelType === 'obj')
-          card.resources.addOBJ(model)
-        else if (card.modelType === 'img')
-          card.resources.addImg(model)
-        else if (card.modelType === 'vid')
-          card.resources.addVid(model)
-        else if (card.modelType === 'gltf')
-          card.resources.addGLTF(model)
-        else if (card.modelType === 'fbx')
-          card.resources.addFBX(model)
+    console.log('getModel')
+    // getBytes(ref_storage(storage, `users/${id}`))
+    //   .then((model) => {
+    //     console.log('model = ', card.modelType)
+    //     if (card.modelType === 'obj')
+    //       card.resources.addOBJ(model)
+    //     else if (card.modelType === 'img')
+    //       card.resources.addImg(model)
+    //     else if (card.modelType === 'vid')
+    //       card.resources.addVid(model)
+    //     else if (card.modelType === 'gltf')
+    //       card.resources.addGLTF(model)
+    //     else if (card.modelType === 'fbx')
+    //       card.resources.addFBX(model)
 
-        card.loaded = true
-        setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    //     card.loaded = true
+    //     setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
+    //   })
+    //   .catch((error) => {
+    //     console.log(error)
+    //   })
     // }
     // else if (card.modelType === 'img') {
     //   getBytes(ref_storage(storage, `users/${id}.jpg`))
