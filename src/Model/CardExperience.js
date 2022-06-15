@@ -45,7 +45,7 @@ const shaderMaterial = (shader) => {
     `
     )
     shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <clipping_planes_fragment>',
+        '#include <clipping_pl  es_fragment>',
         `
     #include <clipping_planes_fragment>
     vec2 a = worldPosition.xz;

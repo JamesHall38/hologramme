@@ -94,7 +94,8 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
             if (experience.id !== data.id && experience.resources.modelActive) {
                 experience.resources.modelActive = false
                 experience.loadModel.model.visible = false
-                experience.resources.addGLTF(modelFiles[displayModeData.id])
+                experience.modelType = data.modelType
+                experience.resources.setModel(modelFiles[displayModeData.id])
             }
 
             experience.loadModel.playing = data.animation

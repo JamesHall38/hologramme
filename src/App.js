@@ -42,28 +42,15 @@ function App() {
 
     const refModel = ref_storage(storage, `users/${id}`)
     const model = await getBlob(refModel)
-    const url = window.URL.createObjectURL(model)
 
     // const arrayBuffer = await model.arrayBuffer()
     // // .then((model) => {
     // console.log('model = ', card.modelType)
 
-
-    if (card.modelType === 'obj')
-      card.resources.addOBJ(url)
-    else if (card.modelType === 'img')
-      card.resources.addImg(url)
-    else if (card.modelType === 'vid')
-      card.resources.addVid(url)
-    else if (card.modelType === 'gltf')
-      card.resources.addGLTF(url)
-    else if (card.modelType === 'fbx')
-      card.resources.addFBX(url)
-
-
+    card.resources.setModel(model)
 
     card.loaded = true
-    setModelFiles(oldFiles => ({ ...oldFiles, [id]: url }))
+    setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
     // })
     // .catch((error) => {
     //   console.log(error)

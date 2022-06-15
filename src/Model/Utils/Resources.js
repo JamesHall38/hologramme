@@ -49,10 +49,29 @@ export default class Resources extends EventEmitter {
 
     // }
 
+    setModel(model) {
+
+        console.log(this.experience)
+        if (this.experience.modelType === 'obj')
+            this.addOBJ(model)
+        else if (this.experience.modelType === 'img')
+            this.addImg(model)
+        else if (this.experience.modelType === 'vid')
+            this.addVid(model)
+        else if (this.experience.modelType === 'gltf')
+            this.addGLTF(model)
+        else if (this.experience.modelType === 'fbx')
+            this.addFBX(model)
+    }
+
+
+
     addGLTF(arrayBuffer) {
+        const url = window.URL.createObjectURL(arrayBuffer)
+
         console.log(arrayBuffer)
         this.loaders.gltfLoader.load(
-            arrayBuffer,
+            url,
             (file) => {
                 console.log(file)
                 this.importedLoaded(file)
@@ -117,7 +136,7 @@ export default class Resources extends EventEmitter {
         const blob = new Blob([arrayBuffer])
         const url = window.URL.createObjectURL(blob)
 
-        if (this.experience) {
+        if (this.experience.type === 'simple') {
             const video = document.createElement('video')
             const img = document.createElement('img')
 
@@ -219,9 +238,9 @@ export default class Resources extends EventEmitter {
     }
 
     importedLoaded(file) {
-        // this.items['file'] = file
-        // this.modelActive = true
-        // // this.trigger('ready')
-        // this.trigger('importedReady')
+        this.items['file'] = file
+        this.modelActive = true
+        // this.trigger('ready')
+        this.trigger('importedReady')
     }
 }

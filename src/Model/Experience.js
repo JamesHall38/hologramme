@@ -47,7 +47,7 @@ export default class Experience extends EventEmitter {
 
         this.camera = new Camera(this)
         this.renderer = new Renderer(this)
-        this.resources = new Resources(this.source)
+        this.resources = new Resources(this.source, this)
         this.loadModel = new LoadModel(false, this)
         this.environment = new Environment(this)
 

@@ -37,7 +37,7 @@ const DragAndDrop = ({ card, setFiles }) => {
             reader.onabort = () => console.log('file reading was aborted')
             reader.onerror = () => console.log('file reading has failed')
             reader.onload = () => {
-                setFiles(reader.result)
+                setFiles(new Blob([reader.result]))
                 console.log(reader)
             }
             reader.readAsArrayBuffer(file)
