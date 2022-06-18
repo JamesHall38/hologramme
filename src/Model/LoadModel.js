@@ -1,6 +1,8 @@
 import '../App.css'
+
 import * as THREE from 'three'
 import Name from './World/Name'
+import compression from './Compression'
 
 const shaderMaterial = (shader) => {
     shader.uniforms.face = { value: 0 }
@@ -89,23 +91,30 @@ export default class LoadModel {
 
 
         this.experience.on('ready', () => {
+            // console.log()
+
+            // this.experience.LoadModel.modelActive = true
+
+
             if (!this.importedLoaded) {
-                console.log(this.experience.modelType)
-                if (this.experience.modelType === 'gltf')
-                    this.resources.addGLTF(this.experience.files)
-                else if (this.experience.modelType === 'img') {
-                    console.log('IMG')
-                    this.resources.addImg(this.experience.files)
-                }
-                else if (this.experience.modelType === 'vid')
-                    this.resources.addVid(this.experience.files)
-                else if (this.experience.modelType === 'obj')
-                    this.resources.addOBJ(this.experience.files)
-                else if (this.experience.modelType === 'fbx')
-                    this.resources.addFBX(this.experience.files)
+                // this.experience.
+                compression(this.experience)
+                //     console.log(this.experience.modelType)
+                //     if (this.experience.modelType === 'gltf')
+                //         this.resources.addGLTF(this.experience.files)
+                //     else if (this.experience.modelType === 'img') {
+                //         console.log('IMG')
+                //         this.resources.addImg(this.experience.files)
+                //     }
+                //     else if (this.experience.modelType === 'vid')
+                //         this.resources.addVid(this.experience.files)
+                //     else if (this.experience.modelType === 'obj')
+                //         this.resources.addOBJ(this.experience.files)
+                //     else if (this.experience.modelType === 'fbx')
+                //         this.resources.addFBX(this.experience.files)
 
                 this.importedLoaded = true
-                this.experience.onSelect = true
+                //     this.experience.onSelect = true
             }
         })
 
@@ -150,7 +159,7 @@ export default class LoadModel {
             this.resource.re = this.resources.items['file']
             console.log(this.resource.re)
 
-            this.model = this.resource.re.scene
+            this.model = this.resource.re
             // this.scene.add(this.model)
             this.setModel()
 

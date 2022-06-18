@@ -4,6 +4,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import EventEmitter from './EventEmitter.js'
 
+
 export default class Resources extends EventEmitter {
     constructor(sources, experience) {
         super()
@@ -51,22 +52,29 @@ export default class Resources extends EventEmitter {
 
     setModel(model) {
 
-        console.log(this.experience)
-        if (this.experience.modelType === 'obj')
-            this.addOBJ(model)
-        else if (this.experience.modelType === 'img')
-            this.addImg(model)
-        else if (this.experience.modelType === 'vid')
-            this.addVid(model)
-        else if (this.experience.modelType === 'gltf')
-            this.addGLTF(model)
-        else if (this.experience.modelType === 'fbx')
-            this.addFBX(model)
+        this.items['file'] = model
+        this.modelActive = true
+        this.trigger('importedReady')
+
+        // console.log(this.experience)
+        // if (this.experience.modelType === 'obj')
+        //     this.addOBJ(model)
+        // else if (this.experience.modelType === 'img')
+        //     this.addImg(model)
+        // else if (this.experience.modelType === 'vid')
+        //     this.addVid(model)
+        // else if (this.experience.modelType === 'gltf')
+        //     this.addGLTF(model)
+        // else if (this.experience.modelType === 'fbx')
+        //     this.addFBX(model)
     }
 
 
 
     addGLTF(arrayBuffer) {
+
+        // if (test) {
+
         const url = window.URL.createObjectURL(arrayBuffer)
 
         console.log(arrayBuffer)
@@ -77,6 +85,15 @@ export default class Resources extends EventEmitter {
                 this.importedLoaded(file)
             }
         )
+        // }
+        // else {
+
+        //     const documentView = new DocumentView(document);
+
+        //     const sceneDef = document.getRoot().listScenes()[0];
+        //     const sceneGroup = documentView.view(sceneDef);
+        //     this.experience.scene.add(sceneGroup);
+        // }
     }
 
     addOBJ(arrayBuffer) {

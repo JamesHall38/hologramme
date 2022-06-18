@@ -90,8 +90,10 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
         containerStyle.height = '100%'
         containerStyle.position = 'relative'
         // style.wrap = 'wrap'
-        if (window.innerWidth < 750)
+        if (window.innerWidth < 750) {
+            bodyStyle.overflow = 'visible'
             bodyStyle.flexDirection = 'column-reverse'
+        }
         else {
             bodyStyle.flexDirection = 'row-reverse'
             bodyStyle.padding = '0'
@@ -101,6 +103,13 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
 
         if (card) {
             card.canvas.className = ''
+
+            const appClass = document.getElementById('App')
+            appClass.appendChild(card.canvas)
+            // const container = document.getElementById('container')
+            // container.removeChild(card.canvas)
+            // document.getElementsByClassName('App').appendChild(card.canvas)
+
             setOldCard({
                 name: card.cardName,
                 description: card.cardDescription
@@ -193,8 +202,23 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
     // SUBMIT FORM
     const handleSubmit = useCallback((e) => {
         e.preventDefault()
+
+
+        // exp.resources.addGLTF(files)
+
+        // const storage = getStorage()
+        // uploadBytesResumable(ref_storage(storage, `/users/${newId}`), exp.loadModel.model)
+        //     .on("state_changed", (snapshot) => {
+        //         setProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100))
+        //     })
+        // console.log('FILE SENT -> ', newId);
+
+        // setFiles(false)
+
         setDisabledSaveButton(true)
         setDisabledEditButton(false)
+
+        // console.log(exp.scene)
 
         let newId
         if (card)
@@ -206,7 +230,7 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
 
         if (files) {
             const storage = getStorage()
-            uploadBytesResumable(ref_storage(storage, `/users/${newId}`), files)
+            uploadBytesResumable(ref_storage(storage, `/users/${newId}`), exp.loadModel.model)
                 .on("state_changed", (snapshot) => {
                     setProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100))
                 })
@@ -215,7 +239,7 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
             setFiles(false)
         }
         setDatabase(newId)
-    }, [files, setDatabase, card, modelId])
+    }, [files, setDatabase, card, modelId, exp])
 
     // NAVIGATION
     const navigate = useNavigate()
@@ -238,6 +262,9 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
     const handleClickBack = useCallback(() => {
         window.scroll(0, 0)
 
+        if (card)
+            document.getElementById('container').appendChild(card.canvas)
+
         if (window.location.pathname === '/import' || isNew)
             window.location.href = '/'
         else
@@ -252,7 +279,8 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
 
     return (
         <div style={{
-            display: 'flex', flexDirection: 'column', position: 'relative', margin: '20px', color: 'white', top: '0px'
+            display: 'flex', flexDirection: 'column', position: 'relative',
+            margin: '10px', color: 'white', top: '0px', width: '50vw'
         }} id='card' >
             <ThemeProvider theme={theme}>
                 <Card className='responsiveCard' >

@@ -10,7 +10,9 @@ const Home = ({ selectedCard, setSelectedCard }) => {
     // document.body.style.padding = '0 50px 0 50px'
     // document.body.style.overflow = 'visible'
     const containerStyle = document.getElementById('container').style
-    containerStyle.flexDirection = 'row'
+    containerStyle.flexDirection = 'row-reverse'
+    // container.scrollTop = 0
+
     // containerStyle.position = 'absolute'
 
     document.body.style.height = '100vh'

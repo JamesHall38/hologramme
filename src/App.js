@@ -23,7 +23,6 @@ import {
 import {
   getStorage,
   ref as ref_storage,
-  getBytes,
   getBlob,
   getMetadata
 } from "firebase/storage"
@@ -260,7 +259,7 @@ function App() {
   }, [firstRender])
 
   return (
-    <div className="App">
+    <div className="App" id='App'>
       <Firebase />
       <BrowserRouter>
         <Routes>

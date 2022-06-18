@@ -3,12 +3,7 @@ import {
     getAuth,
     signInAnonymously,
 } from "firebase/auth"
-import {
-    getDatabase,
-    ref as ref_data,
-    onValue
-} from "firebase/database"
-import { useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 
 const Firebase = () => {
 
