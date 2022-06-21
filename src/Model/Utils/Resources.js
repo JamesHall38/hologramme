@@ -85,6 +85,7 @@ export default class Resources extends EventEmitter {
             const documentView = new DocumentView(document);
             const sceneDef = document.getRoot().listScenes()[0]
             this.sceneGroup = documentView.view(sceneDef)
+            this.experience.scene.add(this.sceneGroup)
 
             this.sceneGroup.traverse((child) => {
                 if (child instanceof THREE.Mesh && child.material.name !== 'White') {
@@ -114,7 +115,6 @@ export default class Resources extends EventEmitter {
                         child.material.roughnessMap = materials[child.material.name].roughnessMap
                 }
             })
-            this.experience.scene.add(this.sceneGroup)
 
             // this.items['file'] = model
             // this.modelActive = true
