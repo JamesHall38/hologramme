@@ -87,8 +87,9 @@ export default class Resources extends EventEmitter {
             this.sceneGroup = documentView.view(sceneDef)
 
             this.sceneGroup.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
-                    // if (child.material.map) {
+                if (child instanceof THREE.Mesh && child.material.name !== 'White') {
+
+                    console.log(materials, child.material.name)
                     if (materials[child.material.name].map)
                         child.material.map = materials[child.material.name].map
                     if (materials[child.material.name].alphaMap)
@@ -111,10 +112,6 @@ export default class Resources extends EventEmitter {
                         child.material.normalMap = materials[child.material.name].normalMap
                     if (materials[child.material.name].roughnessMap)
                         child.material.roughnessMap = materials[child.material.name].roughnessMap
-                    console.log(child.material)
-                    // child.material.needsUpdate = true
-
-                    // }
                 }
             })
             this.experience.scene.add(this.sceneGroup)

@@ -36,25 +36,25 @@ export default async function compression(experience, files, materials, newId, s
     // console.log(document.getRoot().listMaterials()[0].getBaseColorTexture())
 
 
-    // await document.transform(
-    //     // textureResize({ size: [128, 128] }),
-    //     reorder({ encoder: MeshoptEncoder, level: 'medium' }),
-    //     dequantize(),
-    //     weld(),
-    //     dedup(),
-    //     center({ pivot: 'below' }),
-    //     colorspace({ inputEncoding: 'sRGB' }),
-    //     metalRough(),
-    //     prune(),
-    //     // normals(),
-    // );
+    await modelDocument.transform(
+        // textureResize({ size: [128, 128] }),
+        reorder({ encoder: MeshoptEncoder, level: 'medium' }),
+        // dequantize(),
+        // weld(),
+        // dedup(),
+        center({ pivot: 'below' }),
+        // colorspace({ inputEncoding: 'sRGB' }),
+        // metalRough(),
+        prune(),
+        // normals(),
+    );
 
     // const materialDef = document.getRoot().listMaterials()[0]
     // materialDef.setBaseColorHex(0xFF0000);
 
-    // document.createExtension(MeshoptCompression)
-    //     .setRequired(true)
-    //     .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.FILTER });
+    modelDocument.createExtension(MeshoptCompression)
+        .setRequired(true)
+        .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.FILTER });
 
 
     const testo = await io.writeBinary(modelDocument);
@@ -122,8 +122,8 @@ export default async function compression(experience, files, materials, newId, s
             // const test = gltf
             const buffer = pako.deflate(gltf)
 
-            const blob = new Blob([buffer], { type: 'application/octet-stream' })
-            const url = URL.createObjectURL(blob)
+            // const blob = new Blob([buffer], { type: 'application/octet-stream' })
+            // const url = URL.createObjectURL(blob)
             // console.log(bufView, buffer, gltf)
 
             uploadBytesResumable(ref_storage(storage, `/users/textures/${newId}`), buffer)
@@ -132,14 +132,14 @@ export default async function compression(experience, files, materials, newId, s
                 })
 
         },
-            { binary: true },
-            {
-                binary: true,
-                forcePowerOfTwoTextures: true,
-                onlyVisible: true,
-                embedImages: true,
-                forceIndices: true,
-            }
+            { binary: true }
+            // {
+            //     binary: true,
+            //     forcePowerOfTwoTextures: true,
+            //     onlyVisible: true,
+            //     embedImages: true,
+            //     forceIndices: true,
+            // }
         )
 
     }
