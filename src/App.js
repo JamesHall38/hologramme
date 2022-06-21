@@ -52,6 +52,7 @@ function App() {
     // // .then((model) => {
     // console.log('model = ', card.modelType)
 
+    card.resources.setModel(model)
 
     card.loaded = true
     setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
@@ -83,7 +84,35 @@ function App() {
           child.material = null
         }
       })
-      card.resources.setModel(model, materials)
+      card.resources.sceneGroup.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material.name !== 'White') {
+
+          console.log(materials, child.material.name)
+          if (materials[child.material.name].map)
+            child.material.map = materials[child.material.name].map
+          if (materials[child.material.name].alphaMap)
+            child.material.alphaMap = materials[child.material.name].alphaMap
+          if (materials[child.material.name].aoMap)
+            child.material.aoMap = materials[child.material.name].aoMap
+          if (materials[child.material.name].bumpMap)
+            child.material.bumpMap = materials[child.material.name].bumpMap
+          if (materials[child.material.name].displacementMap)
+            child.material.displacementMap = materials[child.material.name].displacementMap
+          if (materials[child.material.name].emissiveMap)
+            child.material.emissiveMap = materials[child.material.name].emissiveMap
+          if (materials[child.material.name].envMap)
+            child.material.envMap = materials[child.material.name].envMap
+          if (materials[child.material.name].lightMap)
+            child.material.lightMap = materials[child.material.name].lightMap
+          if (materials[child.material.name].metalnessMap)
+            child.material.metalnessMap = materials[child.material.name].metalnessMap
+          if (materials[child.material.name].normalMap)
+            child.material.normalMap = materials[child.material.name].normalMap
+          if (materials[child.material.name].roughnessMap)
+            child.material.roughnessMap = materials[child.material.name].roughnessMap
+        }
+      })
+
       // // console.log(materials)
       // card.resources.sceneGroup.traverse((child) => {
       //   if (child instanceof THREE.Mesh) {
