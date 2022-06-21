@@ -83,7 +83,7 @@ export default async function compression(experience, files, materials, newId, s
 
         const testo = []
         Object.values(materials).forEach(material => {
-            testo.push(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material.clone()))
+            testo.push(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material))
             // scene.add(mesh)
         })
         // console.log(scene)

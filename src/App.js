@@ -79,8 +79,8 @@ function App() {
       gltf.scene.traverse(function (child) {
         if (child.isMesh) {
           // materials.push(child.material)
-          materials = { ...materials, [child.material.name]: child.material }
-
+          materials = { ...materials, [child.material.name]: child.material.clone() }
+          child.material = null
         }
       })
       card.resources.setModel(model, materials)

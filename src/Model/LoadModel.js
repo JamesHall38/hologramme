@@ -288,7 +288,7 @@ export default class LoadModel {
         if (this.isCard) {
             this.model.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
-                    // child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
+                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
                     // child.material.map.transparent = true
                     // console.log(child.material)
                 }
