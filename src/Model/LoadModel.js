@@ -1,8 +1,13 @@
 import '../App.css'
 
 import * as THREE from 'three'
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
+import { DocumentView } from '@gltf-transform/view';
+
 import Name from './World/Name'
-import compression from './Compression'
+// import compression from '../components/Compression'
+import { WebIO } from '@gltf-transform/core'
+
 
 const shaderMaterial = (shader) => {
     shader.uniforms.face = { value: 0 }
@@ -98,20 +103,20 @@ export default class LoadModel {
 
             if (!this.importedLoaded) {
                 // this.experience.
-                compression(this.experience)
+                // compression(this.experience)
                 //     console.log(this.experience.modelType)
-                //     if (this.experience.modelType === 'gltf')
-                //         this.resources.addGLTF(this.experience.files)
-                //     else if (this.experience.modelType === 'img') {
-                //         console.log('IMG')
-                //         this.resources.addImg(this.experience.files)
-                //     }
-                //     else if (this.experience.modelType === 'vid')
-                //         this.resources.addVid(this.experience.files)
-                //     else if (this.experience.modelType === 'obj')
-                //         this.resources.addOBJ(this.experience.files)
-                //     else if (this.experience.modelType === 'fbx')
-                //         this.resources.addFBX(this.experience.files)
+                if (this.experience.modelType === 'gltf')
+                    this.resources.addGLTF(this.experience.files)
+                else if (this.experience.modelType === 'img') {
+                    console.log('IMG')
+                    this.resources.addImg(this.experience.files)
+                }
+                else if (this.experience.modelType === 'vid')
+                    this.resources.addVid(this.experience.files)
+                else if (this.experience.modelType === 'obj')
+                    this.resources.addOBJ(this.experience.files)
+                else if (this.experience.modelType === 'fbx')
+                    this.resources.addFBX(this.experience.files)
 
                 this.importedLoaded = true
                 //     this.experience.onSelect = true
@@ -126,6 +131,7 @@ export default class LoadModel {
             //             childd.visible = false
             //         })
             // })
+
             console.log('import ready')
             this.setResources()
         })
@@ -159,7 +165,7 @@ export default class LoadModel {
             this.resource.re = this.resources.items['file']
             console.log(this.resource.re)
 
-            this.model = this.resource.re
+            this.model = this.resource.re.scene
             // this.scene.add(this.model)
             this.setModel()
 
@@ -173,11 +179,11 @@ export default class LoadModel {
     }
 
     setImgPresentation(img) {
-        console.log(img)
+        // console.log(img)
         img.encoding = THREE.sRGBEncoding
 
         const material = new THREE.MeshPhongMaterial({ map: img })
-        console.log(material)
+        // console.log(material)
         if (this.isCard)
             material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
 
@@ -212,7 +218,7 @@ export default class LoadModel {
     setVidPresentation(imgtexture) {
 
 
-        console.log('VIDEOOOO')
+        // console.log('VIDEOOOO')
         // const material = new THREE.MeshPhongMaterial({ map: texture })
         // material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
 
@@ -238,7 +244,7 @@ export default class LoadModel {
         }
         this.model = new THREE.Mesh(this.videoGeometry, this.videoMaterial)
         this.model.position.set(0, 0.05, 0.5)
-        console.log(this.model)
+        // console.log(this.model)
 
         this.experience.removeLoadingBox()
         this.scene.add(this.model)
@@ -251,7 +257,9 @@ export default class LoadModel {
 
     setModel() {
 
-        console.log(this.model)
+
+
+        // console.log(this.model)
         this.model.rotation.x = -Math.PI
         this.model.children[0].visible = true
         const borderBox = new THREE.Box3().setFromObject(this.model)
@@ -268,6 +276,7 @@ export default class LoadModel {
         // updateAllMaterials(this.scene, debugObject, environmentMap)
         this.scene.traverse((child) => {
             if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                // console.log(child)
                 child.material.envMap = this.resources.environmentMapTexture
                 // child.material.envMapIntensity = debugObject.envMapIntensity
                 child.material.needsUpdate = true
@@ -279,8 +288,9 @@ export default class LoadModel {
         if (this.isCard) {
             this.model.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
-                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-                    console.log(child)
+                    // child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
+                    // child.material.map.transparent = true
+                    // console.log(child.material)
                 }
             })
             this.scene.add(this.model)
@@ -379,7 +389,7 @@ export default class LoadModel {
 
     setSettings = () => {
         const set = this.experience.settings
-        console.log(this.experience.settings)
+        // console.log(this.experience.settings)
         // this.model.scale.multiplyScalar(set.scale)
         this.model.position.x = set.modelPositionX
         this.model.position.y = set.modelPositionY
@@ -457,7 +467,7 @@ export default class LoadModel {
             }
 
 
-            console.log(this.experience.animationsNames)
+            // console.log(this.experience.animationsNames)
 
             // Mixer
             this.animation.mixer = new THREE.AnimationMixer(this.model)

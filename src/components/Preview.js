@@ -20,8 +20,14 @@ import { Button, Grid, TextField } from '@material-ui/core'
 import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
+import { WebIO } from '@gltf-transform/core'
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
+import * as THREE from 'three'
+
 import { ThemeProvider } from '@material-ui/core'
 import { createTheme } from '@material-ui/core/styles'
+import compression from './Compression'
+
 
 
 const theme = createTheme({
@@ -215,6 +221,40 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
 
         // setFiles(false)
 
+
+
+        // const io = new WebIO();
+        const exporter = new GLTFExporter()
+
+        const modelScene = exp.resources.items['file'].scene
+
+        let materials = {}
+        modelScene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                if (child.material.map) {
+                    materials = { ...materials, [child.material.name]: child.material.clone() }
+                    console.log(materials)
+                    // child.material.map = null
+                }
+            }
+        })
+
+        exporter.parse(modelScene, (buffer) => {
+            // const json = io.binaryToJSON(buffer);
+            // console.log(json.resources);
+
+            compression(exp, buffer, materials, newId, setProgress)
+
+        }, { binary: true });
+
+
+
+
+
+
+
+
+
         setDisabledSaveButton(true)
         setDisabledEditButton(false)
 
@@ -229,12 +269,6 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
         }
 
         if (files) {
-            const storage = getStorage()
-            uploadBytesResumable(ref_storage(storage, `/users/${newId}`), exp.loadModel.model)
-                .on("state_changed", (snapshot) => {
-                    setProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100))
-                })
-            console.log('FILE SENT -> ', newId);
 
             setFiles(false)
         }

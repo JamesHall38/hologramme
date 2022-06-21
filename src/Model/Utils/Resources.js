@@ -2,6 +2,10 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { WebIO } from '@gltf-transform/core'
+import { DocumentView } from '@gltf-transform/view';
+import pako from 'pako'
+
 import EventEmitter from './EventEmitter.js'
 
 
@@ -50,23 +54,77 @@ export default class Resources extends EventEmitter {
 
     // }
 
-    setModel(model) {
+    // setModel(model) {
+    //     console.log()
 
-        this.items['file'] = model
-        this.modelActive = true
-        this.trigger('importedReady')
+    //     // console.log(this.experience)
+    //     if (this.experience.modelType === 'obj')
+    //         this.addOBJ(model)
+    //     else if (this.experience.modelType === 'img')
+    //         this.addImg(model)
+    //     else if (this.experience.modelType === 'vid')
+    //         this.addVid(model)
+    //     else if (this.experience.modelType === 'gltf')
+    //         this.addGLTF(model)
+    //     else if (this.experience.modelType === 'fbx')
+    //         this.addFBX(model)
+    // }
 
-        // console.log(this.experience)
-        // if (this.experience.modelType === 'obj')
-        //     this.addOBJ(model)
-        // else if (this.experience.modelType === 'img')
-        //     this.addImg(model)
-        // else if (this.experience.modelType === 'vid')
-        //     this.addVid(model)
-        // else if (this.experience.modelType === 'gltf')
-        //     this.addGLTF(model)
-        // else if (this.experience.modelType === 'fbx')
-        //     this.addFBX(model)
+    setModel(model, materials) {
+        console.log(model)
+        const decompressed = pako.inflate(model)
+        const uint8View = new Uint8Array(decompressed)
+
+        const io = new WebIO()
+
+
+        const testp = async () => {
+            const document = await io.readBinary(uint8View)
+
+
+            const documentView = new DocumentView(document);
+            const sceneDef = document.getRoot().listScenes()[0]
+            this.sceneGroup = documentView.view(sceneDef)
+
+            this.sceneGroup.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    // if (child.material.map) {
+                    if (materials[child.material.name].map)
+                        child.material.map = materials[child.material.name].map
+                    if (materials[child.material.name].alphaMap)
+                        child.material.alphaMap = materials[child.material.name].alphaMap
+                    if (materials[child.material.name].aoMap)
+                        child.material.aoMap = materials[child.material.name].aoMap
+                    if (materials[child.material.name].bumpMap)
+                        child.material.bumpMap = materials[child.material.name].bumpMap
+                    if (materials[child.material.name].displacementMap)
+                        child.material.displacementMap = materials[child.material.name].displacementMap
+                    if (materials[child.material.name].emissiveMap)
+                        child.material.emissiveMap = materials[child.material.name].emissiveMap
+                    if (materials[child.material.name].envMap)
+                        child.material.envMap = materials[child.material.name].envMap
+                    if (materials[child.material.name].lightMap)
+                        child.material.lightMap = materials[child.material.name].lightMap
+                    if (materials[child.material.name].metalnessMap)
+                        child.material.metalnessMap = materials[child.material.name].metalnessMap
+                    if (materials[child.material.name].normalMap)
+                        child.material.normalMap = materials[child.material.name].normalMap
+                    if (materials[child.material.name].roughnessMap)
+                        child.material.roughnessMap = materials[child.material.name].roughnessMap
+                    console.log(child.material)
+                    // child.material.needsUpdate = true
+
+                    // }
+                }
+            })
+            this.experience.scene.add(this.sceneGroup)
+
+            // this.items['file'] = model
+            // this.modelActive = true
+            // this.trigger('importedReady')
+        }
+
+        testp()
     }
 
 

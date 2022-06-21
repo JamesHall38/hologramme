@@ -9,6 +9,11 @@ import Home from './components/Home'
 import Model from './components/Model'
 import './App.css'
 import Firebase from './components/Firebase.jsx'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import pako from 'pako'
+import * as THREE from 'three'
+
+
 // import sources from './Model/sources.js'
 // import React, { useState } from 'react'
 
@@ -24,7 +29,8 @@ import {
   getStorage,
   ref as ref_storage,
   getBlob,
-  getMetadata
+  getMetadata,
+  getBytes
 } from "firebase/storage"
 
 
@@ -39,17 +45,61 @@ function App() {
     // if (card.modelType === 'obj') {
     console.log('getModel')
 
-    const refModel = ref_storage(storage, `users/${id}`)
-    const model = await getBlob(refModel)
+    const refModel = ref_storage(storage, `users/model/${id}`)
+    const model = await getBytes(refModel)
 
     // const arrayBuffer = await model.arrayBuffer()
     // // .then((model) => {
     // console.log('model = ', card.modelType)
 
-    card.resources.setModel(model)
 
     card.loaded = true
     setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
+
+    const refMaterials = ref_storage(storage, `users/textures/${id}`)
+    const compressedMaterials = await getBytes(refMaterials)
+
+
+    const decompressed = pako.inflate(compressedMaterials)
+    console.log(compressedMaterials, decompressed)
+    // const temp = Buffer.from(decompressed).toString();
+    // const test = decompressed.buffer()
+    // const test = new Uint8Array(decompressed)
+    const test = decompressed.buffer
+
+    const blob = new Blob([test], { type: 'application/octet-stream' })
+    const url = URL.createObjectURL(blob)
+
+    const gltfLoader = new GLTFLoader()
+    gltfLoader.load(url, (gltf) => {
+
+      console.log('gltf = ', gltf)
+
+      let materials = {}
+      gltf.scene.traverse(function (child) {
+        if (child.isMesh) {
+          // materials.push(child.material)
+          materials = { ...materials, [child.material.name]: child.material }
+
+        }
+      })
+      card.resources.setModel(model, materials)
+      // // console.log(materials)
+      // card.resources.sceneGroup.traverse((child) => {
+      //   if (child instanceof THREE.Mesh) {
+      //     // if (child.material.map) {
+      //     console.log(child.material)
+      //     child.material = materials[child.material.name]
+      //     child.material.needsUpdate = true
+
+      //     // }
+      //   }
+      // })
+    })
+
+
+    // console.log('refMaterials = ', material, test)
+
     // })
     // .catch((error) => {
     //   console.log(error)
@@ -139,7 +189,7 @@ function App() {
 
         auth.forEach((id, index) => {
           cards[index].id = id
-          const storage = ref_storage(getStorage(), `users/${id}`)
+          const storage = ref_storage(getStorage(), `users/model/${id}`)
           getMetadata(storage).then((metaData) => {
             sizesArray.push({ id: id, size: metaData.size, index: index })
             sizesArray.sort((a, b) => { return a.size - b.size })
