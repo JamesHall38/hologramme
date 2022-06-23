@@ -1,34 +1,14 @@
-import { useEffect, useCallback, useMemo } from 'react'
+import { useEffect, useCallback, useMemo, useRef, useState } from 'react'
 import CardExperience from '../Model/CardExperience'
 import DragAndDrop from './DragAndDrop'
-import {
-    getStorage,
-    ref as ref_storage,
-    uploadBytesResumable,
-    deleteObject
-} from "firebase/storage"
-import {
-    getDatabase,
-    ref as ref_database,
-    set,
-    remove
-} from 'firebase/database'
-import React, { useRef, useState } from 'react'
-import { Card, CardContent } from '@material-ui/core'
+import NavButtons from './NavButtons'
+import FormInput from './FormInput'
+import submit from './Submit'
+
+import { useForm, FormProvider } from 'react-hook-form'
 import { motion } from "framer-motion"
-import { Button, Grid, TextField } from '@material-ui/core'
-import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-
-import { WebIO } from '@gltf-transform/core'
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
-import * as THREE from 'three'
-
-import { ThemeProvider } from '@material-ui/core'
+import { Button, Grid, Card, CardContent, ThemeProvider } from '@material-ui/core'
 import { createTheme } from '@material-ui/core/styles'
-import compression from './Compression'
-
-
 
 const theme = createTheme({
     palette: {
@@ -39,54 +19,15 @@ const theme = createTheme({
 })
 
 
-const FormInput = ({ name, label, required, value, onChange }) => {
-    const { control } = useFormContext()
-    return (
-        <Controller
-            control={control}
-            name={name}
-            render={({ field }) => (
-                <TextField
-                    InputLabelProps={{
-                        style: {
-                            color: "white",
-                            fontSize: '15px',
-                        }
-                    }}
-                    InputProps={{
-                        style: {
-                            color: "white",
-                        }
-                    }}
-                    variant="filled"
-                    size='small'
-                    {...field}
-                    value={value}
-                    onChange={onChange}
-                    name={name}
-                    label={label}
-                    required={required}
-                    fullWidth
-                />
-            )}
-        />
-    )
-}
-
-
-
 const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
     const [cardId, setCardId] = useState(modelId ? modelId : '')
     const [nameFormContent, setNameFormContent] = useState('')
     const [descriptionFormContent, setDescriptionFormContent] = useState('')
     const [oldCard, setOldCard] = useState({})
-
     const [files, setFiles] = useState(false)
-
     const [progress, setProgress] = useState(0)
-
-    const [disabledSaveButton, setDisabledSaveButton] = useState(true)
-    const [disabledEditButton, setDisabledEditButton] = useState(true)
+    const methods = useForm()
+    const form = useRef()
 
     // EXPERIENCE
     const exp = useMemo(() => {
@@ -109,12 +50,8 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
 
         if (card) {
             card.canvas.className = ''
-
             const appClass = document.getElementById('App')
             appClass.appendChild(card.canvas)
-            // const container = document.getElementById('container')
-            // container.removeChild(card.canvas)
-            // document.getElementsByClassName('App').appendChild(card.canvas)
 
             setOldCard({
                 name: card.cardName,
@@ -135,181 +72,37 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
         }
     }, [card])
 
-    const methods = useForm()
-    const form = useRef()
-
-    console.log('PREVIEW')
 
     // INITIALIZE
     useEffect(() => {
         console.log('Init')
 
-        if (exp.world.name) {
-            console.log('test')
-            exp.cardName = nameFormContent
-            exp.cardDescription = descriptionFormContent
-        }
         if (files) {
             exp.files = files
+            exp.trigger('ready')
             console.log(files)
         }
-
         if (card) {
             if (settings.scale) {
                 exp.settings = settings
                 console.log(settings)
                 exp.loadModel.setSettings()
             }
-
-            if (exp.cardName === oldCard.name && exp.cardDescription === oldCard.description) {
-                setDisabledEditButton(false)
-                setDisabledSaveButton(true)
-            }
-            else {
-                setDisabledEditButton(true)
-                setDisabledSaveButton(false)
-            }
         }
-        else {
-            if (nameFormContent)
-                setDisabledSaveButton(false)
-            else
-                setDisabledSaveButton(true)
+        if (exp.world.name) {
+            console.log('test')
+            exp.cardName = nameFormContent
+            exp.cardDescription = descriptionFormContent
         }
 
-    }, [nameFormContent, descriptionFormContent, files, exp, card, oldCard, settings])
+    }, [files, card, exp, nameFormContent, descriptionFormContent, settings])
 
-    // DATABASE
-    const setDatabase = useCallback((id) => {
-        console.log('database')
-        const db = getDatabase()
-        set(ref_database(db, `/users/${id}/card`), {
-            modelType: exp.modelType,
-            name: nameFormContent,
-            description: descriptionFormContent
-        })
-    }, [nameFormContent, descriptionFormContent, exp])
 
-    const removeFromStorage = useCallback((id) => {
-        console.log(id)
-        const storage = getStorage()
-        const modelRef = ref_storage(storage, `/users/${id}`)
-        deleteObject(modelRef).then(() => {
-            console.log('deleted')
-            window.location.href = '/'
-        }).catch((error) => {
-            console.log(error)
-        })
-
-        const db = getDatabase()
-        remove(ref_database(db, `/users/${id}`))
-    }, [])
-
-    // SUBMIT FORM
+    // SUBMIT
     const handleSubmit = useCallback((e) => {
         e.preventDefault()
-
-
-        // exp.resources.addGLTF(files)
-
-        // const storage = getStorage()
-        // uploadBytesResumable(ref_storage(storage, `/users/${newId}`), exp.loadModel.model)
-        //     .on("state_changed", (snapshot) => {
-        //         setProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100))
-        //     })
-        // console.log('FILE SENT -> ', newId);
-
-        // setFiles(false)
-
-
-
-        // const io = new WebIO();
-        const exporter = new GLTFExporter()
-
-        const modelScene = exp.resources.items['file'].scene
-
-        let materials = {}
-        modelScene.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-                if (child.material.map) {
-                    materials = { ...materials, [child.material.name]: child.material.clone() }
-                    console.log(materials)
-                    // child.material.map = null
-                }
-            }
-        })
-
-        exporter.parse(modelScene, (buffer) => {
-            // const json = io.binaryToJSON(buffer);
-            // console.log(json.resources);
-
-            compression(exp, buffer, materials, newId, setProgress)
-
-        }, { binary: true });
-
-
-
-
-
-
-
-
-
-        setDisabledSaveButton(true)
-        setDisabledEditButton(false)
-
-        // console.log(exp.scene)
-
-        let newId
-        if (card)
-            newId = modelId
-        else {
-            newId = 'id' + (new Date()).getTime()
-            setCardId(newId)
-        }
-
-        if (files) {
-
-            setFiles(false)
-        }
-        setDatabase(newId)
-    }, [files, setDatabase, card, modelId, exp])
-
-    // NAVIGATION
-    const navigate = useNavigate()
-
-    const handleClickEdit = useCallback(() => {
-        if (card)
-            card.canvas.className = 'hidden-card'
-        else {
-            console.log(exp, cardId, exp.files)
-            exp.canvas.className = 'hidden-card'
-            setNewModel({
-                card: exp,
-                id: cardId,
-                model: exp.files,
-            })
-        }
-        navigate(`/${cardId}/edit`, { replace: true })
-    }, [navigate, cardId, card, exp, setNewModel])
-
-    const handleClickBack = useCallback(() => {
-        window.scroll(0, 0)
-
-        if (card)
-            document.getElementById('container').appendChild(card.canvas)
-
-        if (window.location.pathname === '/import' || isNew)
-            window.location.href = '/'
-        else
-            navigate('/', { replace: false })
-        if (!card)
-            exp.destroy()
-    }, [navigate, exp, card, isNew])
-
-    const handleOnChange = (e) => {
-        setNameFormContent(e.target.value)
-    }
+        submit(files, card, modelId, exp, setProgress, setCardId, setFiles, nameFormContent, descriptionFormContent)
+    }, [files, card, modelId, exp, descriptionFormContent, nameFormContent])
 
     return (
         <div style={{
@@ -343,7 +136,9 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
                                             style={{ width: '100%' }}>
 
                                             <FormInput required value={nameFormContent}
-                                                onChange={handleOnChange}
+                                                onChange={(e) => {
+                                                    setNameFormContent(e.target.value)
+                                                }}
                                                 name="Name" label="Nom" />
 
                                         </motion.div >
@@ -367,7 +162,7 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
                                             exit={{ opacity: 0, translateY: 10 }}
                                             transition={{ delay: 0.2, duration: 0.4 }}
                                             style={{ width: '100%', marginTop: '10px' }}>
-                                            <Button type="submit" className="savebutton" disabled={((progress > 0 && progress !== 100) || disabledSaveButton)} variant="contained" color="primary">
+                                            <Button type="submit" className="savebutton" disabled={((progress > 0 && progress !== 100))} variant="contained" color="primary">
                                                 {(progress === 0 || progress === 100) ? 'Enregistrer' : `${progress}%`}
                                             </Button>
 
@@ -379,28 +174,7 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
                     </CardContent>
                 </Card >
 
-                <motion.div
-                    initial={{ opacity: 0, translateY: 10 }}
-                    animate={{ opacity: 1, translateY: 0 }}
-                    exit={{ opacity: 0, translateY: 10 }}
-                    transition={{ delay: 0.2, duration: 0.4 }}
-                    style={{ marginTop: '10px', left: '-50%', margin: '10px' }}>
-
-                    <Button type='button' disabled={disabledEditButton} variant="contained" color="primary" onClick={handleClickEdit} >
-                        Modifier
-                    </Button>
-
-                    <Button type='button' variant="contained" color="primary" onClick={handleClickBack} >
-                        Retour
-                    </Button>
-
-                    {cardId !== '' &&
-                        (<Button type='button' variant="contained" color="primary" style={{ backgroundColor: 'red' }} onClick={() => removeFromStorage(cardId)} >
-                            Supprimer
-                        </Button>)
-                    }
-
-                </motion.div >
+                <NavButtons card={card} exp={exp} cardId={cardId} setNewModel={setNewModel} isNew={isNew} oldCard={oldCard} />
             </ThemeProvider>
         </div >
     )

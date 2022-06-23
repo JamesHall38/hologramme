@@ -1,72 +1,11 @@
 import '../App.css'
 
 import * as THREE from 'three'
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
-import { DocumentView } from '@gltf-transform/view';
-
-import Name from './World/Name'
-// import compression from '../components/Compression'
-import { WebIO } from '@gltf-transform/core'
+import setModel from './SetModel'
+import shaderMaterial from './CardShader'
+import getMaterials from './GetMaterials'
 
 
-const shaderMaterial = (shader) => {
-    shader.uniforms.face = { value: 0 }
-    shader.vertexShader = shader.vertexShader.replace(
-        '#include <common>',
-        `
-        #include <common>
-        out vec3 worldPosition;
-        `
-    )
-    shader.vertexShader = shader.vertexShader.replace(
-        '#include <begin_vertex>',
-        `
-        #include <begin_vertex>
-        worldPosition = vec3(modelMatrix * vec4(position, 1.0));
-        `
-    )
-    shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <common>',
-        `
-        #include <common>
-        
-        in vec3 worldPosition;
-        uniform int face;
-        
-        const vec2 corners[4] = vec2[](vec2(0.5, 0.5), vec2(-0.5, 0.5), vec2(-0.5, -0.5), vec2(0.5, -0.5));
-        bool order(vec2 A, vec2 B, vec2 C) {
-            return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x);
-        }
-        bool intersect(vec2 A, vec2 B, vec2 C, vec2 D) {
-            return order(A,C,D) != order(B,C,D) && order(A,B,C) != order(A,B,D);
-        }
-        `
-    )
-    shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <clipping_planes_fragment>',
-        `
-        #include <clipping_planes_fragment>
-        vec2 a = worldPosition.xz;
-        vec2 b = cameraPosition.xz;
-        vec2 aa ;
-        vec2 bb ; 
-        if (bool(mod(float(face),2.0))){
-            aa = worldPosition.xy;
-            bb = cameraPosition.xy; 
-        }
-        else{
-            aa = worldPosition.yz;
-            bb = cameraPosition.yz;
-        }
-        int next = int(mod(float(face + 1), 4.0));
-        vec2 c = corners[face];
-        vec2 d = corners[next];
-        if (!(intersect(a, b, c, d) && intersect(aa, bb, c, d))) {
-            discard;
-        }
-        `
-    )
-}
 export default class LoadModel {
     constructor(IsCard, experience) {
         this.isCard = IsCard
@@ -92,19 +31,24 @@ export default class LoadModel {
 
         this.importedLoaded = false
 
-        this.resource = { re: null }
+        // this.resource = { re: null }
 
 
         this.experience.on('ready', () => {
             // console.log()
 
             // this.experience.LoadModel.modelActive = true
-
+            if (this.experience.type === 'triple') {
+                this.resources.setModel(this.experience.files)
+                console.log(this.experience.materialsFiles)
+                getMaterials(this.experience.materialsFiles, this.experience)
+                this.importedLoaded = true
+            }
 
             if (!this.importedLoaded) {
-                // this.experience.
-                // compression(this.experience)
-                //     console.log(this.experience.modelType)
+                // // this.experience.
+                // // compression(this.experience)
+                // //     console.log(this.experience.modelType)
                 if (this.experience.modelType === 'gltf')
                     this.resources.addGLTF(this.experience.files)
                 else if (this.experience.modelType === 'img') {
@@ -123,6 +67,12 @@ export default class LoadModel {
             }
         })
 
+        // this.experience.on('materialsReady', () => {
+        //     if (this.experience.type === 'triple') {
+        //         console.log('materialsReady')
+        //     }
+        // })
+
         this.resources.on('importedReady', () => {
 
             // this.scene.children.forEach(child => {
@@ -133,7 +83,33 @@ export default class LoadModel {
             // })
 
             console.log('import ready')
-            this.setResources()
+            console.log(this.experience.modeltype)
+            if (this.experience.modelType === 'obj'
+                || this.experience.modelType === 'fbx'
+                || this.experience.modelType === ''
+            ) {
+                this.model = this.resources.items['file']
+                setModel(this)
+
+            }
+            else if (this.experience.modelType === 'gltf') {
+
+                if (this.experience.files && this.experience.type !== 'triple')
+                    this.model = this.resources.items['file'].scene
+                else
+                    this.model = this.resources.items['file']
+                console.log(this.resources.items['file'], this.resources.items['file'].scene, this.model, this.experience.type === 'triple')
+                // this.scene.add(this.model)
+                setModel(this)
+
+
+            }
+            else if (this.experience.modelType === 'img') {
+                this.setImgPresentation(this.resources.items['file'])
+            }
+            else if (this.experience.modelType === 'vid') {
+                this.setVidPresentation(this.resources.items['file'])
+            }
         })
 
         // this.resources.on('ready', () => {
@@ -144,38 +120,9 @@ export default class LoadModel {
         //         this.resource = { re: this.resources.items[this.experience.source[0].name] }
         //     // this.resource = { re:  }
         //     // if (this.experience.userSource)
-        //     this.setModel()
+        //     setModel(this)
         //     // console.log(this.resources)
         // })
-    }
-
-    setResources() {
-        console.log(this.experience.modeltype)
-        if (this.experience.modelType === 'obj'
-            || this.experience.modelType === 'fbx'
-            // || this.experience.modelType === ''
-        ) {
-            this.resource.re = this.resources.items['file']
-            console.log(this.resource.re)
-
-            this.model = this.resource.re
-            this.setModel()
-        }
-        else if (this.experience.modelType === 'gltf') {
-            this.resource.re = this.resources.items['file']
-            console.log(this.resource.re)
-
-            this.model = this.resource.re.scene
-            // this.scene.add(this.model)
-            this.setModel()
-
-        }
-        else if (this.experience.modelType === 'img') {
-            this.setImgPresentation(this.resources.items['file'])
-        }
-        else if (this.experience.modelType === 'vid') {
-            this.setVidPresentation(this.resources.items['file'])
-        }
     }
 
     setImgPresentation(img) {
@@ -211,8 +158,8 @@ export default class LoadModel {
         // group.add(mesh)
         // group.add(mesh)
         // this.scene.add(mesh)
-        // this.resource.re = group
-        // this.setModel()
+        // this.model = group
+        // setModel(this)
     }
 
     setVidPresentation(imgtexture) {
@@ -255,138 +202,6 @@ export default class LoadModel {
 
     }
 
-    setModel() {
-
-
-
-        // console.log(this.model)
-        this.model.rotation.x = -Math.PI
-        this.model.children[0].visible = true
-        const borderBox = new THREE.Box3().setFromObject(this.model)
-        const center = borderBox.getCenter(new THREE.Vector3())
-        const size = borderBox.getSize(new THREE.Vector3())
-
-        const maxAxis = Math.max(size.x, size.y, size.z)
-        this.model.scale.multiplyScalar(1 / maxAxis)
-        borderBox.setFromObject(this.model)
-        borderBox.getCenter(center)
-        borderBox.getSize(size)
-        this.model.position.copy(center).multiplyScalar(-1)
-        this.model.position.y = -(size.y * 0.5)
-        // updateAllMaterials(this.scene, debugObject, environmentMap)
-        this.scene.traverse((child) => {
-            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                // console.log(child)
-                child.material.envMap = this.resources.environmentMapTexture
-                // child.material.envMapIntensity = debugObject.envMapIntensity
-                child.material.needsUpdate = true
-                child.castShadow = true
-                child.receiveShadow = true
-            }
-        })
-
-        if (this.isCard) {
-            this.model.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
-                    child.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-                    // child.material.map.transparent = true
-                    // console.log(child.material)
-                }
-            })
-            this.scene.add(this.model)
-            this.experience.removeLoadingBox()
-            window.requestAnimationFrame(() => {
-                this.time.tick()
-            })
-            // this.model.scale.multiplyScalar(10)
-
-            window.requestAnimationFrame(() => {
-                this.time.tick()
-            })
-
-
-
-
-            // window.requestAnimationFrame(() => {
-            //     this.time.tick()
-            // })
-
-        }
-        else {
-            this.scene.add(this.model)
-            if (this.isCard)
-                window.requestAnimationFrame(() => {
-                    this.time.tick()
-                })
-        }
-
-        // const button = this.experience.world.card.model.children.find(child => child.name === 'Button')
-        // button.material.visible = false
-        // const buttonLED = this.experience.world.card.model.children.find(child => child.name === 'AnimationLED')
-        // buttonLED.material.visible = false
-
-        this.setSettings()
-        if (this.isCard)
-            this.model.position.z = -0.2
-        else
-            this.model.position.z = 0
-
-        if (this.debug) {
-            this.debugObject = {
-                scale: 1,
-                rotation: 0,
-            }
-
-            this.debugModelFolder.add(this.debugObject, 'scale')
-                .min(0)
-                .max(1.3)
-                .name('scale')
-                .onChange((event) => {
-                    this.experience.settings.scale = event
-                    this.model.scale.set(this.debugObject.scale, this.debugObject.scale, this.debugObject.scale)
-                })
-
-
-            // if (this.experience.display)
-            // this.experience.guiPannel.getRotate()
-
-            this.debug.add(this.debugObject, 'rotation')
-                .min(-Math.PI)
-                .max(Math.PI)
-                .name('rotation')
-                .onChange((event) => {
-                    this.experience.settings.rotation = event
-                    this.model.rotation.y = this.debugObject.rotation
-                    // if (this)
-                    // this.experience.guiPannel.rotate()
-                }
-                )
-            this.debugModelFolder.add(this.model.position, 'x')
-                .min(-1)
-                .max(1)
-                .name('positionX')
-                .onChange((event) => { this.experience.settings.modelPositionX = event })
-            this.debugModelFolder.add(this.model.position, 'y')
-                .min(-1)
-                .max(1)
-                .name('positionY')
-                .onChange((event) => { this.experience.settings.modelPositionY = event })
-
-            this.debugModelFolder.add(this.model.position, 'z')
-                .min(-1)
-                .max(1)
-                .name('positionZ')
-                .onChange((event) => { this.experience.settings.modelPositionZ = event })
-        }
-
-
-        this.setAnimation()
-        if (this.isCard)
-            window.requestAnimationFrame(() => {
-                this.time.tick()
-            })
-    }
-
     setSettings = () => {
         const set = this.experience.settings
         // console.log(this.experience.settings)
@@ -397,125 +212,6 @@ export default class LoadModel {
         this.model.rotation.x = set.rotation
     }
 
-    setAnimation() {
-        if (this.resource.re.animations.length > 0) {
-            this.animation = {}
-            const timeouts = []
-
-            if (this.isCard) {
-                const waitForCard = () => {
-                    if (this.experience.world.card) {
-
-                        timeouts.forEach(timeout => {
-                            console.log('timeout')
-                            clearTimeout(timeout)
-                        })
-
-                        const logo = this.experience.world.card.model.children.find(child => child.name === 'LOGO')
-                        logo.material.visible = false
-
-                        const originalButton = this.experience.world.card.model.children.find(child => child.name === 'Button')
-                        originalButton.material.visible = true
-                        const originalButtonLED = this.experience.world.card.model.children.find(child => child.name === 'AnimationLED')
-                        originalButtonLED.material.visible = true
-
-                        this.experience.groups = this.resource.re.animations.map((animation, index) => {
-                            const group = new THREE.Group()
-                            const animName = new Name(this.experience, false, animation.name, 0.35 - index * 0.22)
-                            this.experience.animationsNames.push(animName)
-                            group.add(animName.cube)
-
-                            if (index === 0) {
-                                originalButton.position.y = 0.35
-                                originalButtonLED.position.y = 0.35
-
-                                group.add(originalButton)
-                                group.add(originalButtonLED)
-
-                                originalButton.userData = { name: animation.name }
-                                this.experience.buttonArray.push({ object: originalButton, name: animation.name })
-                            } else {
-                                const button = originalButton.clone()
-                                const buttonLED = originalButtonLED.clone()
-
-                                buttonLED.material = new THREE.MeshBasicMaterial({ color: 0x000000 })
-                                buttonLED.material.onBeforeCompile = (shader) => { shaderMaterial(shader) }
-
-
-                                button.position.y = 0.35 - index * 0.22
-                                buttonLED.position.y = 0.35 - index * 0.22
-
-                                group.add(button)
-                                group.add(buttonLED)
-
-                                button.userData.name = animation.name
-                                this.experience.buttonArray.push({ object: button, name: animation.name })
-                            }
-                            if (index > 5) {
-                                animName.cube.visible = false
-                            }
-                            this.scene.add(group)
-                            return group
-                        })
-                    }
-                    else {
-                        console.log('retry')
-                        timeouts.push(setTimeout(waitForCard, 200))
-                    }
-                }
-                waitForCard()
-            }
-
-
-            // console.log(this.experience.animationsNames)
-
-            // Mixer
-            this.animation.mixer = new THREE.AnimationMixer(this.model)
-
-            if (this.debugFolder)
-                this.debugFolder.destroy()
-
-            if (this.debug) {
-
-                // Actions
-                this.animation.actions = {}
-                this.debugFolder = this.debug.addFolder('Animations')
-
-                // if (!this.experience.display) {
-
-                this.resource.re.animations.forEach((animation) => {
-                    const debugObject = {
-                        play: () => {
-                            this.animation.play(animation.name)
-                            // if (this.experience.guiPannel.debugObject.SendToHologram)
-                            //     this.experience.guiPannel.animation(animation.name)
-                        }
-                    }
-                    this.animation.actions[animation.name] = this.animation.mixer.clipAction(animation)
-                    this.debugFolder.add(debugObject, `play`).name(animation.name)
-                })
-                // }
-
-                this.animation.actions.current = this.animation.actions[Object.keys(this.animation.actions)[0]]
-                this.animation.current = this.animation.actions.current
-
-                // this.experience.guiPannel.getAnimation()
-            }
-
-            // Play the action
-            this.animation.play = (name) => {
-                const newAction = this.animation.actions[name]
-
-                const oldAction = this.animation.current
-
-                newAction.reset()
-                newAction.play()
-                newAction.crossFadeFrom(oldAction, 1)
-
-                this.animation.current = newAction
-            }
-        }
-    }
 
     update() {
         if (this.experience.animationsNames) {

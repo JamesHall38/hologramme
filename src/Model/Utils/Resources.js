@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import EventEmitter from './EventEmitter.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
@@ -6,25 +7,19 @@ import { WebIO } from '@gltf-transform/core'
 import { DocumentView } from '@gltf-transform/view';
 import pako from 'pako'
 
-import EventEmitter from './EventEmitter.js'
-
 
 export default class Resources extends EventEmitter {
     constructor(sources, experience) {
         super()
-
         this.sources = sources
-
-        this.video = null
         this.experience = experience
 
+        this.video = null
         this.items = {}
         this.toLoad = this.sources.length
         this.loaded = 0
         this.ratio = 1
-
         this.modelActive = false
-
 
         this.setLoaders()
         this.startLoading()
@@ -39,24 +34,10 @@ export default class Resources extends EventEmitter {
 
         this.loaders.textureLoader = new THREE.TextureLoader()
         this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader()
-
-
     }
-    // addFromFirebase(url) {
-    //     // setInterval(() => {
-    //     this.loaders.gltfLoader.load(
-    //         url,
-    //         // (file) => {
-    //         //     this.sourceLoaded(url, file)
-    //         // }
-    //     )
-    //     // }, 10000)
-
-    // }
 
     // setModel(model) {
     //     console.log()
-
     //     // console.log(this.experience)
     //     if (this.experience.modelType === 'obj')
     //         this.addOBJ(model)
@@ -74,37 +55,26 @@ export default class Resources extends EventEmitter {
         console.log(model)
         const decompressed = pako.inflate(model)
         const uint8View = new Uint8Array(decompressed)
-
         const io = new WebIO()
 
-
-        const testp = async () => {
+        const createScene = async () => {
             const document = await io.readBinary(uint8View)
-
-
             const documentView = new DocumentView(document);
             const sceneDef = document.getRoot().listScenes()[0]
             this.sceneGroup = documentView.view(sceneDef)
             this.experience.scene.add(this.sceneGroup)
 
+            this.items['file'] = this.sceneGroup
+            this.modelActive = true
 
-            // this.items['file'] = model
-            // this.modelActive = true
-            // this.trigger('importedReady')
+            this.trigger('importedReady')
         }
 
-        testp()
+        createScene()
     }
 
-
-
     addGLTF(arrayBuffer) {
-
-        // if (test) {
-
         const url = window.URL.createObjectURL(arrayBuffer)
-
-        console.log(arrayBuffer)
         this.loaders.gltfLoader.load(
             url,
             (file) => {
@@ -112,15 +82,6 @@ export default class Resources extends EventEmitter {
                 this.importedLoaded(file)
             }
         )
-        // }
-        // else {
-
-        //     const documentView = new DocumentView(document);
-
-        //     const sceneDef = document.getRoot().listScenes()[0];
-        //     const sceneGroup = documentView.view(sceneDef);
-        //     this.experience.scene.add(sceneGroup);
-        // }
     }
 
     addOBJ(arrayBuffer) {
@@ -143,24 +104,7 @@ export default class Resources extends EventEmitter {
                 this.importedLoaded(file)
             }
         )
-
-        // this.loaders.fbxLoader.parse(
-        //     arrayBuffer, '', (file) => {
-        //         console.log('addFBX')
-        //         this.importedLoaded(file)
-        //     }
-        // )
     }
-
-    // addImg(path) {
-    //     this.loaders.textureLoader.load(
-    //         path,
-    //         (file) => {
-    //             console.log('IMG LOADED')
-    //             this.importedLoaded(file)
-    //         }
-    //     )
-    // }
 
     addImg(arrayBuffer) {
         console.log('addImg')

@@ -2,16 +2,16 @@ import * as THREE from 'three'
 import { WebIO } from '@gltf-transform/core'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
 
-import { reorder, weld, dedup, quantize, center, colorspace, metalRough, prune, dequantize, normals, textureResize } from '@gltf-transform/functions'
+// import { reorder, weld, dedup, quantize, center, colorspace, metalRough, prune, dequantize, sequence, normals, textureResize } from '@gltf-transform/functions'
+import { reorder, center, prune, sequence } from '@gltf-transform/functions'
 import { MeshoptCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions';
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
-import { DocumentView } from '@gltf-transform/view';
+// import { DocumentView } from '@gltf-transform/view';
 import pako from 'pako'
 import {
     getStorage,
     ref as ref_storage,
     uploadBytesResumable,
-    deleteObject
 } from "firebase/storage"
 
 
@@ -46,6 +46,7 @@ export default async function compression(experience, files, materials, newId, s
         // colorspace({ inputEncoding: 'sRGB' }),
         // metalRough(),
         prune(),
+        sequence()
         // normals(),
     );
 

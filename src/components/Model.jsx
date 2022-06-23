@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import Experience from '../Model/Experience'
-import { getApps } from "firebase/app";
+import { getApps } from "firebase/app"
+import getMaterials from '../Model/GetMaterials'
 
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@material-ui/core'
@@ -12,9 +13,10 @@ import {
 } from 'firebase/database'
 
 
-const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
+const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) => {
 
     const model = Model
+    const materials = Materials
     console.log(model)
     const idModel = Id
     const card = Card
@@ -58,6 +60,9 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
         if (model) {
             editExperience.id = idModel
             editExperience.files = model
+            editExperience.materialsFiles = materials
+            editExperience.trigger('ready')
+            editExperience.trigger('materialsReady')
             editExperience.settings = card.settings
         }
         else {
@@ -78,7 +83,7 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
             const experience = new Experience(displayModeData.modelType)
             setExp({ experience: experience })
         }
-    }, [displayModeData, onlyOnce, exp, modelFiles])
+    }, [displayModeData, onlyOnce])
 
     const watchDisplaySettings = useCallback(() => {
         const experience = exp.experience
@@ -86,6 +91,16 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings }) => {
         const data = displayModeData
         console.log('succed watch display settings', data)
         experience.files = modelFiles[data.id]
+        experience.materialsFiles = modelFiles[data.id + 'mat']
+        // experience.trigger('ready')
+        // experience.trigger('materialsReady')
+
+        // card.resources.setModel(modelFiles[data.id])
+        // card.loaded = true
+        // getMaterials(compressedMaterials, card, data.id, setModelFiles)
+
+
+
         if (cards && cards[0].id)
             experience.settings = cards.find(card => card.id === data.id).settings
 

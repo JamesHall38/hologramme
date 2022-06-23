@@ -1,25 +1,19 @@
+import React, { useCallback, useState, useEffect } from 'react'
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate
 } from "react-router-dom"
+import './App.css'
+
 import Preview from './components/Preview'
 import Home from './components/Home'
 import Model from './components/Model'
-import './App.css'
-import Firebase from './components/Firebase.jsx'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import pako from 'pako'
-import * as THREE from 'three'
-
-
-// import sources from './Model/sources.js'
-// import React, { useState } from 'react'
-
-import React, { useCallback, useState, useEffect } from 'react'
+import getMaterials from './Model/GetMaterials'
 import CardExperience from './Model/CardExperience'
 
+import Firebase from './components/Firebase.jsx'
 import {
   getDatabase,
   ref as ref_data,
@@ -28,10 +22,11 @@ import {
 import {
   getStorage,
   ref as ref_storage,
-  getBlob,
+  // getBlob,
   getMetadata,
   getBytes
 } from "firebase/storage"
+
 
 
 function App() {
@@ -40,112 +35,22 @@ function App() {
   const [newModel, setNewModel] = useState(false)
   const [settings, setSettings] = useState({})
 
-  const getModel = useCallback(async (id, card) => {
-    const storage = getStorage()
-    // if (card.modelType === 'obj') {
-    console.log('getModel')
 
+  async function getModel(id, card, setModelFiles) {
+    const storage = getStorage()
     const refModel = ref_storage(storage, `users/model/${id}`)
     const model = await getBytes(refModel)
 
-    // const arrayBuffer = await model.arrayBuffer()
-    // // .then((model) => {
-    // console.log('model = ', card.modelType)
-
     card.resources.setModel(model)
-
-    card.loaded = true
     setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
+    card.loaded = true
 
     const refMaterials = ref_storage(storage, `users/textures/${id}`)
     const compressedMaterials = await getBytes(refMaterials)
 
-
-    const decompressed = pako.inflate(compressedMaterials)
-    console.log(compressedMaterials, decompressed)
-    // const temp = Buffer.from(decompressed).toString();
-    // const test = decompressed.buffer()
-    // const test = new Uint8Array(decompressed)
-    const test = decompressed.buffer
-
-    const blob = new Blob([test], { type: 'application/octet-stream' })
-    const url = URL.createObjectURL(blob)
-
-    const gltfLoader = new GLTFLoader()
-    gltfLoader.load(url, (gltf) => {
-
-      console.log('gltf = ', gltf)
-
-      let materials = {}
-      gltf.scene.traverse(function (child) {
-        if (child.isMesh) {
-          // materials.push(child.material)
-          materials = { ...materials, [child.material.name]: child.material.clone() }
-          child.material = null
-        }
-      })
-      card.resources.sceneGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.material.name !== 'White') {
-
-          console.log(materials, child.material.name)
-          if (materials[child.material.name].map)
-            child.material.map = materials[child.material.name].map
-          if (materials[child.material.name].alphaMap)
-            child.material.alphaMap = materials[child.material.name].alphaMap
-          if (materials[child.material.name].aoMap)
-            child.material.aoMap = materials[child.material.name].aoMap
-          if (materials[child.material.name].bumpMap)
-            child.material.bumpMap = materials[child.material.name].bumpMap
-          if (materials[child.material.name].displacementMap)
-            child.material.displacementMap = materials[child.material.name].displacementMap
-          if (materials[child.material.name].emissiveMap)
-            child.material.emissiveMap = materials[child.material.name].emissiveMap
-          if (materials[child.material.name].envMap)
-            child.material.envMap = materials[child.material.name].envMap
-          if (materials[child.material.name].lightMap)
-            child.material.lightMap = materials[child.material.name].lightMap
-          if (materials[child.material.name].metalnessMap)
-            child.material.metalnessMap = materials[child.material.name].metalnessMap
-          if (materials[child.material.name].normalMap)
-            child.material.normalMap = materials[child.material.name].normalMap
-          if (materials[child.material.name].roughnessMap)
-            child.material.roughnessMap = materials[child.material.name].roughnessMap
-        }
-      })
-
-      // // console.log(materials)
-      // card.resources.sceneGroup.traverse((child) => {
-      //   if (child instanceof THREE.Mesh) {
-      //     // if (child.material.map) {
-      //     console.log(child.material)
-      //     child.material = materials[child.material.name]
-      //     child.material.needsUpdate = true
-
-      //     // }
-      //   }
-      // })
-    })
-
-
-    // console.log('refMaterials = ', material, test)
-
-    // })
-    // .catch((error) => {
-    //   console.log(error)
-    // })
-    // }
-    // else if (card.modelType === 'img') {
-    //   getBytes(ref_storage(storage, `users/${id}.jpg`))
-    //     .then((model) => {
-    //       card.resources.addImg(model)
-    //       card.loaded = true
-    //       setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
-    //     })
-    //     .catch((error) => {
-    //       console.log(error)
-    //     })
-    // }
-  }, [])
+    setModelFiles(oldFiles => ({ ...oldFiles, [id + 'mat']: compressedMaterials }))
+    getMaterials(compressedMaterials, card)
+  }
 
   const getCardInfo = useCallback((id, card) => {
     if (window.location.pathname !== '/edit' && window.location.pathname !== '/display') {
@@ -177,14 +82,14 @@ function App() {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
-            getModel(element.id, card)
+            getModel(element.id, card, setModelFiles)
             return
           }
           else if (i === sizesArray.length - 1 && oldCard.loaded) {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
-            getModel(element.id, card)
+            getModel(element.id, card, setModelFiles)
             return timeouts.forEach((timeout) => {
               console.log('clear timeout')
               clearTimeout(timeout)
@@ -194,7 +99,7 @@ function App() {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
-            getModel(element.id, card)
+            getModel(element.id, card, setModelFiles)
             return
           }
           else {
@@ -209,7 +114,7 @@ function App() {
       console.log('retry')
       timeouts.push(setTimeout(() => { getModelsOneByOne(cards, sizesArray, len, timeouts) }, 500))
     }
-  }, [getModel])
+  }, [])
 
   const getModelsFromFirebase = useCallback((auth, cards, timeouts) => {
     if (auth && cards) {
@@ -357,7 +262,7 @@ function App() {
               <React.Fragment key={index}>
                 <Route path={`/${id}`}
                   element={<Preview settings={settings} card={selectedCard.cards[index]} modelId={id} />} />
-                <Route path={`/${id}/edit`} element={<Model setSettings={setSettings} Card={selectedCard.cards[index]} Model={modelFiles[id]} Id={id} />} />
+                <Route path={`/${id}/edit`} element={<Model setSettings={setSettings} Card={selectedCard.cards[index]} Materials={modelFiles[id + 'mat']} Model={modelFiles[id]} Id={id} />} />
               </React.Fragment>
             )
           })

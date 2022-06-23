@@ -20,6 +20,7 @@ export default class Experience extends EventEmitter {
         // this.num = num
 
         this.files = null
+        this.materialsFiles = null
         this.modelType = type
         this.type = 'triple'
 
@@ -95,8 +96,8 @@ export default class Experience extends EventEmitter {
 
         // this.guiPannel.update()
 
-        if (this.files)
-            this.trigger('ready')
+        // if (this.files)
+        //     this.trigger('ready')
 
         if (this.Rotate) {
             this.scene.rotation.y += 0.01
