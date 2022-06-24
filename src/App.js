@@ -45,7 +45,7 @@ function App() {
     setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
     card.loaded = true
 
-    const refMaterials = ref_storage(storage, `users/textures/${id}`)
+    const refMaterials = ref_storage(storage, `users/textures/${id}/0`)
     const compressedMaterials = await getBytes(refMaterials)
 
     setModelFiles(oldFiles => ({ ...oldFiles, [id + 'mat']: compressedMaterials }))

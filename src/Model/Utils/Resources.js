@@ -14,6 +14,7 @@ export default class Resources extends EventEmitter {
         this.sources = sources
         this.experience = experience
 
+        window.createImageBitmap = undefined
         this.video = null
         this.items = {}
         this.toLoad = this.sources.length
@@ -74,7 +75,9 @@ export default class Resources extends EventEmitter {
     }
 
     addGLTF(arrayBuffer) {
-        const url = window.URL.createObjectURL(arrayBuffer)
+        // const binaryData = [];
+        // binaryData.push(arrayBuffer);
+        const url = window.URL.createObjectURL(new Blob(arrayBuffer));
         this.loaders.gltfLoader.load(
             url,
             (file) => {

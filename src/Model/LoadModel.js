@@ -35,7 +35,7 @@ export default class LoadModel {
 
 
         this.experience.on('ready', () => {
-            // console.log()
+            console.log(this.experience.files)
 
             // this.experience.LoadModel.modelActive = true
             if (this.experience.type === 'triple') {

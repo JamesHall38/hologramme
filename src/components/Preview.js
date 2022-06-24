@@ -70,6 +70,7 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
             card.camera.setControls()
             return card
         }
+        console.log('test')
     }, [card])
 
 
@@ -94,6 +95,7 @@ const Preview = ({ card, modelId, setNewModel, isNew, settings }) => {
             exp.cardName = nameFormContent
             exp.cardDescription = descriptionFormContent
         }
+        console.log('test')
 
     }, [files, card, exp, nameFormContent, descriptionFormContent, settings])
 

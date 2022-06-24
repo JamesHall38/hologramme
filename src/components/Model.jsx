@@ -14,12 +14,12 @@ import {
 
 
 const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) => {
+    let model = Model
+    let materials = Materials
 
-    const model = Model
-    const materials = Materials
-    console.log(model)
     const idModel = Id
     const card = Card
+    console.log(model)
 
     const editExperience = useMemo(() => model ? new Experience(card.modelType) : null, [model, card])
 
@@ -60,10 +60,14 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
         if (model) {
             editExperience.id = idModel
             editExperience.files = model
+            // model = null
             editExperience.materialsFiles = materials
+            // materials = null
             editExperience.trigger('ready')
             editExperience.trigger('materialsReady')
             editExperience.settings = card.settings
+
+            card.onSelect = false
         }
         else {
             window.scroll(0, 0)
@@ -133,8 +137,11 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
     }, [watchDisplaySettings, exp])
 
     const handleBack = () => {
-        if (card)
+
+        if (card) {
+            // card.onSelect = true
             editExperience.destroy()
+        }
         else
             exp.experience.destroy()
         navigate(`/${idModel}`, { replace: true })
@@ -153,7 +160,7 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
 
     return (
         <>
-            <Button variant='contained' style={{ position: 'absolute', zIndex: '100', left: '0', bottom: '0', margin: '10px' }} onClick={handleBack}  >Retour</Button>
+            <Button variant='contained' style={{ position: 'fixed', zIndex: '100', left: '0', bottom: '0', margin: '10px' }} onClick={handleBack}  >Retour</Button>
             {window.location.pathname !== '/display' &&
                 <Button variant='contained' style={{ position: 'absolute', zIndex: '100', left: '0', bottom: '40px', margin: '10px' }} onClick={handleSave}  >Enregistrer</Button>
             }

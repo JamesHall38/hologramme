@@ -7,7 +7,6 @@ import setAnimation from './SetAnimation'
 export default function setModel(experience) {
     const exp = experience
 
-    console.log(exp)
     exp.model.rotation.x = -Math.PI
     exp.model.children[0].visible = true
     const borderBox = new THREE.Box3().setFromObject(exp.model)
@@ -23,15 +22,22 @@ export default function setModel(experience) {
     exp.model.position.y = -(size.y * 0.5)
     // updateAllMaterials(exp.scene, debugObject, environmentMap)
     exp.scene.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+        if (child instanceof THREE.Mesh) {
             // console.log(child)
             child.material.envMap = exp.resources.environmentMapTexture
             // child.material.envMapIntensity = debugObject.envMapIntensity
             child.material.needsUpdate = true
             child.castShadow = true
             child.receiveShadow = true
+            // if (child.material.map) {
+            //     console.log(child.material)
+            //     child.material.map.magFilter = THREE.NearestFilter;
+            //     child.material.map.minFilter = THREE.LinearMipMapLinearFilter;
+            //     child.material.map.needsUpdate = true
+            // }
         }
     })
+    console.log(exp.model)
 
     if (exp.isCard) {
         exp.model.traverse((child) => {

@@ -76,7 +76,7 @@ export default function submit(files, card, modelId, exp, setProgress, setCardId
 
     exporter.parse(modelScene, (buffer) => {
         // const json = io.binaryToJSON(buffer);
-        // console.log(json.resources);
+        console.log('oh');
 
         compression(exp, buffer, materials, newId, setProgress)
 

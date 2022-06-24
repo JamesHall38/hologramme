@@ -115,33 +115,37 @@ export default async function compression(experience, files, materials, newId, s
         // },
         // );
         // }
-        exporter.parse(testo, (gltf) => {
-            // console.log(gltf)
-            // saveArrayBuffer(gltf, 'scene.glb');
-            // const bufView = Buffer.from(JSON.stringify(gltf))
+        console.log('for')
+        for (let i = 0; i < 3; i++) {
+            console.log('for', i)
+            exporter.parse(testo, (gltf) => {
+                console.log(i)
+                // saveArrayBuffer(gltf, 'scene.glb');
+                // const bufView = Buffer.from(JSON.stringify(gltf))
 
-            // const test = gltf
-            const buffer = pako.deflate(gltf)
+                // const test = gltf
+                const buffer = pako.deflate(gltf)
 
-            // const blob = new Blob([buffer], { type: 'application/octet-stream' })
-            // const url = URL.createObjectURL(blob)
-            // console.log(bufView, buffer, gltf)
+                // const blob = new Blob([buffer], { type: 'application/octet-stream' })
+                // const url = URL.createObjectURL(blob)
+                // console.log(bufView, buffer, gltf)
 
-            uploadBytesResumable(ref_storage(storage, `/users/textures/${newId}`), buffer)
-                .on("state_changed", (snapshot) => {
-                    setProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 50))
-                })
+                uploadBytesResumable(ref_storage(storage, `/users/textures/${newId}/${i}`), buffer)
+                    .on("state_changed", (snapshot) => {
+                        setProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 50))
+                    })
 
-        },
-            { binary: true }
-            // {
-            //     binary: true,
-            //     forcePowerOfTwoTextures: true,
-            //     onlyVisible: true,
-            //     embedImages: true,
-            //     forceIndices: true,
-            // }
-        )
+            },
+                { binary: true, maxTextureSize: 256 * Math.pow(2, i * 2) }
+                // {
+                //     binary: true,
+                //     forcePowerOfTwoTextures: true,
+                //     onlyVisible: true,
+                //     embedImages: true,
+                //     forceIndices: true,
+                // }
+            )
+        }
 
     }
 }
