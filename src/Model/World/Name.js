@@ -74,10 +74,9 @@ export default class Name {
             this.ctx.fillStyle = "white"
             this.ctx.font = "75px sans-serif"
 
-            this.cube.position.set(0.05, this.pos, 0.518)
+            this.cube.position.set(0.05, this.pos, 0.52)
             this.cube.rotation.y = Math.PI
 
-            console.log(this.animationName)
             this.ctx.fillText(this.animationName, 50, 100)
             this.texture.needsUpdate = true
 
