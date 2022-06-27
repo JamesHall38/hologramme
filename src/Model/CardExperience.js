@@ -20,6 +20,8 @@ export default class CardExperience extends EventEmitter {
         this.modelType = ''
         this.videoUrl = null
         this.type = 'simple'
+
+        this.isCard = true
         // this.num = num
         // console.log(this.num)
 
@@ -78,7 +80,6 @@ export default class CardExperience extends EventEmitter {
         this.onSelect = false
         this.clicked = false
         this.id = null
-
 
         this.canvas = document.createElement('canvas')
         this.canvas.style.paddingBottom = '5px'

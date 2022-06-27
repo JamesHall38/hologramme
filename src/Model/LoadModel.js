@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import setModel from './SetModel'
 import shaderMaterial from './CardShader'
 import getMaterials from './GetMaterials'
+import setAnimation from '../Model/SetAnimation'
 
 
 export default class LoadModel {
@@ -27,7 +28,7 @@ export default class LoadModel {
         this.debug = this.experience.debug
 
         if (this.debug)
-            this.debugModelFolder = this.debug.addFolder('Model').close()
+            this.debugModelFolder = this.debug.addFolder('Model')
 
         this.importedLoaded = false
 
@@ -39,9 +40,20 @@ export default class LoadModel {
 
             // this.experience.LoadModel.modelActive = true
             if (this.experience.type === 'triple') {
-                this.resources.setModel(this.experience.files)
-                console.log(this.experience.materialsFiles)
-                getMaterials(this.experience.materialsFiles, this.experience)
+                if (this.experience.modelType === 'gltf') {
+                    this.resources.setModel(this.experience.files)
+                    console.log(this.experience.materialsFiles)
+                    getMaterials(this.experience.materialsFiles, this.experience)
+
+                    //   console.log(modelFiles[data.id + 'anim'])
+
+                }
+                else if (this.experience.modelType === 'img')
+                    this.resources.setImgModel(this.experience.files)
+                else if (this.experience.modelType === 'vid')
+                    this.resources.setVidModel(this.experience.files)
+
+
                 this.importedLoaded = true
             }
 
@@ -82,7 +94,9 @@ export default class LoadModel {
             //         })
             // })
 
-            console.log('import ready')
+
+
+            console.log('import ready', this.experience.modelType)
             console.log(this.experience.modeltype)
             if (this.experience.modelType === 'obj'
                 || this.experience.modelType === 'fbx'
@@ -94,17 +108,21 @@ export default class LoadModel {
             }
             else if (this.experience.modelType === 'gltf') {
 
-                if (this.experience.files && this.experience.type !== 'triple')
-                    this.model = this.resources.items['file'].scene
-                else
-                    this.model = this.resources.items['file']
+                // if (this.experience.files && this.experience.type !== 'triple')
+                //     this.model = this.resources.items['file']
+                // else
+                this.model = this.resources.items['file'].scene
                 console.log(this.resources.items['file'], this.resources.items['file'].scene, this.model, this.experience.type === 'triple')
                 // this.scene.add(this.model)
                 setModel(this)
 
 
+                setAnimation(this.experience, this.experience.animationsFiles)
+
+
             }
             else if (this.experience.modelType === 'img') {
+                console.log('tjen')
                 this.setImgPresentation(this.resources.items['file'])
             }
             else if (this.experience.modelType === 'vid') {
@@ -126,7 +144,7 @@ export default class LoadModel {
     }
 
     setImgPresentation(img) {
-        // console.log(img)
+        console.log(img)
         img.encoding = THREE.sRGBEncoding
 
         const material = new THREE.MeshPhongMaterial({ map: img })
@@ -150,10 +168,7 @@ export default class LoadModel {
         this.scene.add(this.model)
 
         if (this.isCard)
-            window.requestAnimationFrame(() => {
-                this.time.tick()
-            })
-
+            this.time.trigger('tick')
         // const group = new THREE.Group()
         // group.add(mesh)
         // group.add(mesh)
@@ -196,10 +211,7 @@ export default class LoadModel {
         this.experience.removeLoadingBox()
         this.scene.add(this.model)
         if (this.isCard)
-            window.requestAnimationFrame(() => {
-                this.time.tick()
-            })
-
+            this.time.trigger('tick')
     }
 
     setSettings = () => {
@@ -214,28 +226,34 @@ export default class LoadModel {
 
 
     update() {
-        if (this.experience.animationsNames) {
+        // if (this.experience.animationsNames) {
 
-            if (this.animation)
-                this.experience.animationsNames.forEach((name) => {
-                    name.update()
-                })
+        //     if (this.animation)
+        //         this.experience.animationsNames.forEach((name) => {
+        //             name.update()
+        //         })
 
-        }
-        if (this.animation) {
+        // }
+        if (this.experience.animation) {
             if (this.playing !== 'none') {
-                if (this.playing !== this.animation.current._clip.name) {
-                    this.animation.play(this.playing)
+                if (this.playing !== this.experience.animation.current._clip.name) {
+                    this.experience.animation.play(this.playing)
                     console.log(this.playing)
                 }
             }
-            else {
-                if (this.animation.current)
-                    this.animation.current.stop()
-            }
+            // else {
+            //     if (this.animation.current)
+            //         this.animation.current.stop()
+            // }
         }
 
-        if (this.animation)
-            this.animation.mixer.update(this.time.delta * 0.001)
+        // if (this.resources.sceneGroup.animations)
+        //     this.resources.sceneGroup.animations.forEach((animation) => {
+        //         animation.update()
+        //     }
+
+        if (this.experience.animation)
+            if (this.experience.animation.actions)
+                this.experience.animation.mixer.update(this.time.delta * 0.001)
     }
 }

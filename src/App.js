@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react'
+import * as THREE from 'three'
 import {
   BrowserRouter,
   Routes,
@@ -11,6 +12,7 @@ import Preview from './components/Preview'
 import Home from './components/Home'
 import Model from './components/Model'
 import getMaterials from './Model/GetMaterials'
+// import setAnimation from './Model/SetAnimation'
 import CardExperience from './Model/CardExperience'
 
 import Firebase from './components/Firebase.jsx'
@@ -36,20 +38,40 @@ function App() {
   const [settings, setSettings] = useState({})
 
 
-  async function getModel(id, card, setModelFiles) {
+  async function getModel(id, card, setModelFiles, modelData) {
     const storage = getStorage()
-    const refModel = ref_storage(storage, `users/model/${id}`)
-    const model = await getBytes(refModel)
+    console.log(modelData[id])
 
-    card.resources.setModel(model)
+    const refModel = ref_storage(storage, `users/${id}/model`)
+    const model = await getBytes(refModel)
     setModelFiles(oldFiles => ({ ...oldFiles, [id]: model }))
     card.loaded = true
 
-    const refMaterials = ref_storage(storage, `users/textures/${id}/0`)
-    const compressedMaterials = await getBytes(refMaterials)
 
-    setModelFiles(oldFiles => ({ ...oldFiles, [id + 'mat']: compressedMaterials }))
-    getMaterials(compressedMaterials, card)
+    if (modelData[id].card.model.modelType === 'gltf') {
+      card.resources.setModel(model)
+
+      // if (modelData[id].card.model.animations) {
+      //   const refAnimations = ref_storage(storage, `users/${id}/animations`)
+      //   const animations = await getBytes(refAnimations)
+      console.log(modelData[id])
+      if (modelData[id].settings) {
+        setModelFiles(oldFiles => ({ ...oldFiles, [id + 'settings']: modelData[id].settings }))
+        //   setAnimation(card, animations)
+      }
+      if (modelData[id].card.model.textures) {
+        const refMaterials = ref_storage(storage, `users/${id}/textures/0`)
+        const compressedMaterials = await getBytes(refMaterials)
+        setModelFiles(oldFiles => ({ ...oldFiles, [id + 'mat']: compressedMaterials }))
+        getMaterials(compressedMaterials, card)
+      }
+    }
+    else if (modelData[id].card.model.modelType === 'img') {
+      card.resources.setImgModel(model)
+    }
+    else if (modelData[id].card.model.modelType === 'vid') {
+      card.resources.setVidModel(model)
+    }
   }
 
   const getCardInfo = useCallback((id, card) => {
@@ -57,10 +79,10 @@ function App() {
       const db = getDatabase()
       onValue(ref_data(db, `users/${id}/`),
         (snapshot) => {
-          // console.log(snapshot.val())
-          card.modelType = snapshot.val().card.modelType
-          card.cardName = snapshot.val().card.name
-          card.cardDescription = snapshot.val().card.description
+          console.log(snapshot.val())
+          card.modelType = snapshot.val().card.model.modelType
+          card.cardName = snapshot.val().card.description.name
+          card.cardDescription = snapshot.val().card.description.description
           if (snapshot.val().settings) {
             // card.settings = snapshot.val().settings.settings
             const settings = snapshot.val().settings.settings
@@ -73,7 +95,7 @@ function App() {
     }
   }, [])
 
-  const getModelsOneByOne = useCallback((cards, sizesArray, len, timeouts) => {
+  const getModelsOneByOne = useCallback((cards, sizesArray, len, timeouts, modelData) => {
     let oldCard
     if (sizesArray.length === len) {
       sizesArray.forEach((element, i) => {
@@ -82,14 +104,14 @@ function App() {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
-            getModel(element.id, card, setModelFiles)
+            getModel(element.id, card, setModelFiles, modelData)
             return
           }
           else if (i === sizesArray.length - 1 && oldCard.loaded) {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
-            getModel(element.id, card, setModelFiles)
+            getModel(element.id, card, setModelFiles, modelData)
             return timeouts.forEach((timeout) => {
               console.log('clear timeout')
               clearTimeout(timeout)
@@ -99,7 +121,7 @@ function App() {
             console.log('get model and info ', element.id)
             const card = cards[element.index]
             oldCard = card
-            getModel(element.id, card, setModelFiles)
+            getModel(element.id, card, setModelFiles, modelData)
             return
           }
           else {
@@ -112,18 +134,18 @@ function App() {
     }
     else {
       console.log('retry')
-      timeouts.push(setTimeout(() => { getModelsOneByOne(cards, sizesArray, len, timeouts) }, 500))
+      timeouts.push(setTimeout(() => { getModelsOneByOne(cards, sizesArray, len, timeouts, modelData) }, 500))
     }
   }, [])
 
-  const getModelsFromFirebase = useCallback((auth, cards, timeouts) => {
+  const getModelsFromFirebase = useCallback((auth, cards, timeouts, modelData) => {
     if (auth && cards) {
       if (cards.length) {
         const sizesArray = []
 
         auth.forEach((id, index) => {
           cards[index].id = id
-          const storage = ref_storage(getStorage(), `users/model/${id}`)
+          const storage = ref_storage(getStorage(), `users/${id}/model`)
           getMetadata(storage).then((metaData) => {
             sizesArray.push({ id: id, size: metaData.size, index: index })
             sizesArray.sort((a, b) => { return a.size - b.size })
@@ -131,7 +153,7 @@ function App() {
           getCardInfo(id, cards[index])
         })
 
-        getModelsOneByOne(cards, sizesArray, auth.length, timeouts)
+        getModelsOneByOne(cards, sizesArray, auth.length, timeouts, modelData)
 
       }
       else {
@@ -149,6 +171,7 @@ function App() {
           // document.body.style.paddingLeft = '0'
           card.canvas.className = 'unselected'
           card.onSelect = false
+          card.world.raycaster.synchroniserLED.material.color = new THREE.Color(0x000000)
           card.sizes.cardReset()
           card.camera.instance.position.set(0, -0.25, 3)
           card.camera.removeControls()
@@ -158,11 +181,11 @@ function App() {
       // if (window.innerWidth < 750) {
       // document.body.style.height = '100%'
 
-      card.canvas.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'start'
-      })
+      // card.canvas.scrollIntoView({
+      //   behavior: 'smooth',
+      //   // block: 'center',
+      //   inline: 'center'
+      // })
       // }
 
       card.onSelect = true
@@ -183,8 +206,8 @@ function App() {
     }
   }
 
-  const app = useCallback((auth, cards, timeouts) => {
-    getModelsFromFirebase(auth, cards, timeouts)
+  const app = useCallback((auth, cards, timeouts, modelData) => {
+    getModelsFromFirebase(auth, cards, timeouts, modelData)
 
     if (cards)
       cards.forEach((card, index) => card.canvas.addEventListener('click', () => handleCardSelection(auth, cards, card, index)))
@@ -202,6 +225,7 @@ function App() {
     const db = getDatabase()
     onValue(ref_data(db, `users/`),
       (snapshot) => {
+        const modelData = snapshot.val()
         const data = {
           auth: Object.keys(snapshot.val()),
           cards: Object.keys(snapshot.val()).map(() => { return new CardExperience() })
@@ -211,7 +235,7 @@ function App() {
           auth: data.auth,
           cards: data.cards
         })
-        app(data.auth, data.cards, timeouts)
+        app(data.auth, data.cards, timeouts, modelData)
       }
       , {
         onlyOnce: true

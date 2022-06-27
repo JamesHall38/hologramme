@@ -62,9 +62,25 @@ export default class Name {
         this.cube = new THREE.Mesh(this.geometry, this.material)
         this.cube.scale.set(0.1, 0.1, 0.1)
 
+
+
         if (this.animationName) {
+
+            this.ctx.fillStyle = "black"
+            this.ctx.beginPath();
+            this.ctx.arc(100, 75, 50, 0, 2 * Math.PI)
+            this.ctx.stroke();
+            this.ctx.fillRect(0, 0, 128 * 10, 128 * 2)
+            this.ctx.fillStyle = "white"
+            this.ctx.font = "75px sans-serif"
+
             this.cube.position.set(0.05, this.pos, 0.518)
             this.cube.rotation.y = Math.PI
+
+            console.log(this.animationName)
+            this.ctx.fillText(this.animationName, 50, 100)
+            this.texture.needsUpdate = true
+
         }
         else {
             if (this.fontSize)

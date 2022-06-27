@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import Experience from '../Model/Experience'
 import { getApps } from "firebase/app"
-import getMaterials from '../Model/GetMaterials'
 
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@material-ui/core'
@@ -11,6 +10,7 @@ import {
     set,
     onValue
 } from 'firebase/database'
+
 
 
 const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) => {
@@ -28,12 +28,12 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
     const [onlyOnce, setOnlyOnce] = useState(true)
 
 
-    const style = document.getElementById('container').style
-    style.flexDirection = 'row'
-    style.padding = '0'
-    if (window.location.pathname === '/display') {
-        style.overflow = 'hidden'
-    }
+    // const style = document.getElementById('container').style
+    // style.flexDirection = 'row'
+    // style.padding = '0'
+    // if (window.location.pathname === '/display') {
+    //     style.overflow = 'hidden'
+    // }
 
     const getAuth = useCallback((timeouts) => {
         const db = getApps().length !== 0
@@ -67,10 +67,10 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
             editExperience.trigger('materialsReady')
             editExperience.settings = card.settings
 
-            card.onSelect = false
+            // card.onSelect = false
         }
         else {
-            window.scroll(0, 0)
+            // window.scroll(0, 0)
             timeouts.splice(0, timeouts.length, ...getAuth(timeouts))
         }
         return timeouts.forEach((timeout) => {
@@ -78,7 +78,7 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
             clearTimeout(timeout)
         }
         )
-    }, [getAuth, card, model, exp, editExperience, idModel])
+    }, [getAuth, card, model, editExperience, idModel, materials])
 
     useEffect(() => {
         if (displayModeData && onlyOnce) {
@@ -90,19 +90,15 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
     }, [displayModeData, onlyOnce])
 
     const watchDisplaySettings = useCallback(() => {
+
         const experience = exp.experience
+
         // if (experience && modelFiles) {
         const data = displayModeData
-        console.log('succed watch display settings', data)
-        experience.files = modelFiles[data.id]
-        experience.materialsFiles = modelFiles[data.id + 'mat']
-        // experience.trigger('ready')
-        // experience.trigger('materialsReady')
-
-        // card.resources.setModel(modelFiles[data.id])
-        // card.loaded = true
-        // getMaterials(compressedMaterials, card, data.id, setModelFiles)
-
+        console.log(data)
+        experience.modelType = data.modelType
+        experience.renderer.isVid = data.modelType === 'vid'
+        experience.renderer.setViews()
 
 
         if (cards && cards[0].id)
@@ -110,17 +106,77 @@ const Model = ({ Model, Id, Card, cards, modelFiles, setSettings, Materials }) =
 
         if (experience.loadModel) {
             console.log(experience.id, data.id)
-            if (experience.id !== data.id && experience.resources.modelActive) {
-                experience.resources.modelActive = false
-                experience.loadModel.model.visible = false
+
+
+            if (experience.id !== data.id && experience.id) {
+                experience.scene.children = []
+                // experience.scene.traverse((child) => {
+                //     // Test if it's a mesh
+                //     if (child instanceof THREE.Mesh) {
+                //         console.log('oh')
+
+                //         child.geometry.dispose()
+
+                //         // Loop through the material properties
+                //         for (const key in child.material) {
+                //             const value = child.material[key]
+
+                //             // Test if there is a dispose function
+                //             if (value && typeof value.dispose === 'function') {
+                //                 value.dispose()
+                //             }
+                //         }
+                //     }
+                // })
+                console.log(experience)
+                // experience.resources.modelActive = false
+                // experience.loadModel.model.visible = false
                 experience.modelType = data.modelType
-                experience.resources.setModel(modelFiles[displayModeData.id])
+                experience.files = null
+                experience.materialsFiles = null
+                experience.animationsFiles = null
+
+                // experience.resources.setModel(modelFiles[displayModeData.id])
+
+
+                // if (data.animations !== 'none') {
+                // const refAnimations = ref_storage(storage, `users/${id}/animations`)
+                // const animations = await getBytes(refAnimations)
+                // setModelFiles(oldFiles => ({ ...oldFiles, [id + 'anim']: animations }))
+
+                // }
+
             }
+            experience.id = data.id
 
             experience.loadModel.playing = data.animation
             console.log(data.animation)
         }
-        experience.id = data.id
+        // if (data.animation !== 'none')
+        //     experience.animation.play(data.animation)
+
+        if (!experience.files) {
+
+            console.log(modelFiles)
+            console.log('succed watch display settings', data)
+            experience.files = modelFiles[data.id]
+            experience.materialsFiles = modelFiles[data.id + 'mat']
+            if (modelFiles[data.id + 'settings']) {
+                experience.settings = modelFiles[data.id + 'settings'].settings
+                console.log(modelFiles[data.id + 'settings'])
+            }
+
+
+            experience.trigger('ready')
+            experience.trigger('materialsReady')
+
+
+            console.log('test')
+            // card.resources.setModel(modelFiles[data.id])
+            // card.loaded = true
+            // getMaterials(compressedMaterials, card, data.id, setModelFiles)
+
+        }
         // }
         // else {
         //     console.log('retry')

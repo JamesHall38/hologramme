@@ -13,6 +13,21 @@ export default class Renderer {
 
         this.isVid = this.experience.modelType === 'vid'
 
+        this.setViews()
+
+        this.debugFolder = this.debug.addFolder('Renderer').close()
+        this.leftFolder = this.debugFolder.addFolder('Left').close()
+        this.rightFolder = this.debugFolder.addFolder('Right').close()
+        this.topFolder = this.debugFolder.addFolder('Top').close()
+
+        this.setInstance()
+
+        if (this.experience.display)
+            this.scene.background = new THREE.Color(0, 0, 0)
+
+        document.body.appendChild(this.instance.domElement)
+    }
+    setViews() {
         this.views = {
             right: {
                 left: window.innerWidth > 600 ? 0.6 : 0.5,
@@ -39,18 +54,6 @@ export default class Renderer {
                 up: [0, 1, 0],
             }
         }
-
-        this.debugFolder = this.debug.addFolder('Renderer').close()
-        this.leftFolder = this.debugFolder.addFolder('Left').close()
-        this.rightFolder = this.debugFolder.addFolder('Right').close()
-        this.topFolder = this.debugFolder.addFolder('Top').close()
-
-        this.setInstance()
-
-        if (this.experience.display)
-            this.scene.background = new THREE.Color(0, 0, 0)
-
-        document.body.appendChild(this.instance.domElement)
     }
 
     setInstance() {

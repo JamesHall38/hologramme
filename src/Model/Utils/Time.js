@@ -12,9 +12,10 @@ export default class Time extends EventEmitter {
         this.elapsed = 0
         this.delta = 16
 
-        window.requestAnimationFrame(() => {
-            this.tick()
-        })
+        if (this.experience.type === 'triple')
+            window.requestAnimationFrame(() => {
+                this.tick()
+            })
     }
 
     tick() {

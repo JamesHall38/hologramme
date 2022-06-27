@@ -21,6 +21,7 @@ export default class Experience extends EventEmitter {
 
         this.files = null
         this.materialsFiles = null
+        this.animationsFiles = null
         this.modelType = type
         this.type = 'triple'
 

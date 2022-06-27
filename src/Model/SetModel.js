@@ -1,11 +1,21 @@
 
 import * as THREE from 'three'
 import shaderMaterial from './CardShader'
-import setAnimation from './SetAnimation'
+// import setAnimation from './SetAnimation'
 
 
 export default function setModel(experience) {
     const exp = experience
+
+    // if (window.location.pathname.includes('import')) {
+    //     exp.model = exp.model.scene
+    //     console.log(exp.resources.items['file'])
+    //     // if (exp.resources.items['file'].animations.length > 0)
+    //     // exp.model.animations = exp.resources.items['file'].animations
+    // }
+    // else {
+    //     console.log(exp.model)
+    // }
 
     exp.model.rotation.x = -Math.PI
     exp.model.children[0].visible = true
@@ -20,6 +30,7 @@ export default function setModel(experience) {
     borderBox.getSize(size)
     exp.model.position.copy(center).multiplyScalar(-1)
     exp.model.position.y = -(size.y * 0.5)
+    exp.model.position.y = -1
     // updateAllMaterials(exp.scene, debugObject, environmentMap)
     exp.scene.traverse((child) => {
         if (child instanceof THREE.Mesh) {
@@ -49,14 +60,10 @@ export default function setModel(experience) {
         })
         exp.scene.add(exp.model)
         exp.experience.removeLoadingBox()
-        window.requestAnimationFrame(() => {
-            exp.time.tick()
-        })
+        exp.time.trigger('tick')
         // exp.model.scale.multiplyScalar(10)
 
-        window.requestAnimationFrame(() => {
-            exp.time.tick()
-        })
+        // exp.time.trigger('tick')
 
 
 
@@ -69,9 +76,10 @@ export default function setModel(experience) {
     else {
         exp.scene.add(exp.model)
         if (exp.isCard)
-            window.requestAnimationFrame(() => {
-                exp.time.tick()
-            })
+            exp.time.trigger('tick')
+        // window.requestAnimationFrame(() => {
+        //     exp.time.tick()
+        // })
     }
 
     // const button = exp.experience.world.card.model.children.find(child => child.name === 'Button')
@@ -80,10 +88,12 @@ export default function setModel(experience) {
     // buttonLED.material.visible = false
 
     exp.setSettings()
-    if (exp.isCard)
-        exp.model.position.z = -0.2
-    else
-        exp.model.position.z = 0
+
+    // exp.model.position.y = -0.35
+    // if (exp.isCard)
+    //     exp.model.position.z = -0.2
+    // else
+    //     exp.model.position.z = 0
 
     if (exp.debug) {
         exp.debugObject = {
@@ -134,9 +144,9 @@ export default function setModel(experience) {
     }
 
 
-    setAnimation(exp)
+    // if (window.location.pathname.includes('import'))
+    //     setAnimation(exp)
+
     if (exp.isCard)
-        window.requestAnimationFrame(() => {
-            exp.time.tick()
-        })
+        exp.time.trigger('tick')
 }

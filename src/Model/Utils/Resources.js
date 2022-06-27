@@ -3,8 +3,9 @@ import EventEmitter from './EventEmitter.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { WebIO } from '@gltf-transform/core'
-import { DocumentView } from '@gltf-transform/view';
+
+// import { WebIO } from '@gltf-transform/core'
+// import { DocumentView } from '@gltf-transform/view';
 import pako from 'pako'
 
 
@@ -21,6 +22,7 @@ export default class Resources extends EventEmitter {
         this.loaded = 0
         this.ratio = 1
         this.modelActive = false
+        this.time = experience.time
 
         this.setLoaders()
         this.startLoading()
@@ -52,23 +54,50 @@ export default class Resources extends EventEmitter {
     //         this.addFBX(model)
     // }
 
+    setImgModel(model) {
+        console.log('setImgModel', model)
+        const decompressed = pako.inflate(model)
+        this.addImg(decompressed)
+
+        // this.items['file'] = decompressed
+        // this.modelActive = true
+
+        // this.trigger('importedReady')
+    }
+
+    setVidModel(model) {
+        console.log('setVidModel', model)
+        const decompressed = pako.inflate(model)
+        this.addVid(decompressed)
+    }
+
+
     setModel(model) {
         console.log(model)
         const decompressed = pako.inflate(model)
         const uint8View = new Uint8Array(decompressed)
-        const io = new WebIO()
+        // const io = new WebIO()
+
+        const url = window.URL.createObjectURL(new Blob([uint8View.buffer]));
 
         const createScene = async () => {
-            const document = await io.readBinary(uint8View)
-            const documentView = new DocumentView(document);
-            const sceneDef = document.getRoot().listScenes()[0]
-            this.sceneGroup = documentView.view(sceneDef)
-            this.experience.scene.add(this.sceneGroup)
+            // const document = await io.readBinary(uint8View)
+            // const documentView = new DocumentView(document);
+            // const sceneDef = document.getRoot().listScenes()[0]
+            // this.sceneGroup = documentView.view(sceneDef)
 
-            this.items['file'] = this.sceneGroup
-            this.modelActive = true
+            this.loaders.gltfLoader.load(url, (gltf) => {
 
-            this.trigger('importedReady')
+                console.log(gltf)
+                this.sceneGroup = gltf
+
+                this.experience.scene.add(this.sceneGroup.scene)
+
+                this.items['file'] = this.sceneGroup
+                this.modelActive = true
+
+                this.trigger('importedReady')
+            })
         }
 
         createScene()
@@ -88,7 +117,7 @@ export default class Resources extends EventEmitter {
     }
 
     addOBJ(arrayBuffer) {
-        const url = window.URL.createObjectURL(new Blob([arrayBuffer]))
+        const url = window.URL.createObjectURL(new Blob(arrayBuffer))
 
         this.loaders.objLoader.load(
             url,
@@ -99,7 +128,7 @@ export default class Resources extends EventEmitter {
     }
 
     addFBX(arrayBuffer) {
-        const url = window.URL.createObjectURL(new Blob([arrayBuffer]))
+        const url = window.URL.createObjectURL(new Blob(arrayBuffer))
 
         this.loaders.fbxLoader.load(
             url,
@@ -110,12 +139,19 @@ export default class Resources extends EventEmitter {
     }
 
     addImg(arrayBuffer) {
-        console.log('addImg')
-        const url = window.URL.createObjectURL(new Blob([arrayBuffer]))
+        console.log('addImg', arrayBuffer)
+        // console.log(arrayBuffer)
+        // const buffer = new ArrayBuffer(arrayBuffer.length)
+        // arrayBuffer.forEach((value, i) => { buffer[i] = value });
+
+        let url = window.URL.createObjectURL(new Blob([arrayBuffer.buffer]))
+        // if (this.experience.type === 'triple')
+        //     url = window.URL.createObjectURL(new Blob(arrayBuffer))
 
         this.loaders.textureLoader.load(
             url,
             (file) => {
+                console.log('K')
                 this.ratio = file.source.data.width / file.source.data.height
                 this.importedLoaded(file)
             }
@@ -124,7 +160,7 @@ export default class Resources extends EventEmitter {
 
     addVid(arrayBuffer) {
         // this.experience.files
-        const blob = new Blob([arrayBuffer])
+        const blob = new Blob([arrayBuffer.buffer])
         const url = window.URL.createObjectURL(blob)
 
         if (this.experience.type === 'simple') {
@@ -229,6 +265,7 @@ export default class Resources extends EventEmitter {
     }
 
     importedLoaded(file) {
+        console.log('ojo')
         this.items['file'] = file
         this.modelActive = true
         // this.trigger('ready')

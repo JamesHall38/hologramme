@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { motion } from "framer-motion"
 import { Button } from '@material-ui/core'
 
@@ -16,44 +16,49 @@ import {
 
 
 
-const NavButtons = ({ card, exp, cardId, setNewModel, isNew, oldCard }) => {
+const NavButtons = ({ card, exp, cardId, setNewModel, isNew, progress }) => {
 
 
-    const [disabledSaveButton, setDisabledSaveButton] = useState(true)
-    const [disabledEditButton, setDisabledEditButton] = useState(true)
+    // const [disabledEditButton, setDisabledEditButton] = useState(false)
 
-    console.log(disabledSaveButton)
+    console.log(progress.total)
 
-    useEffect(() => {
-        if (card) {
-            if (exp.cardName === oldCard.name && exp.cardDescription === oldCard.description) {
-                setDisabledEditButton(false)
-                setDisabledSaveButton(true)
-            }
-            else {
-                setDisabledEditButton(true)
-                setDisabledSaveButton(false)
-            }
-        }
-        else {
-            // if (nameFormContent)
-            setDisabledSaveButton(false)
-            // else
-            //     setDisabledSaveButton(true)
-        }
-    }, [card, exp, oldCard])
+    // useEffect(() => {
+    //     if (exp.cardName === oldCard.name && exp.cardDescription === oldCard.description) {
+    //         setDisabledSubmit(true)
 
+    //         setDisabledEditButton(false)
+    //     }
+    //     else if (progress.total === 100)
+    //         setDisabledSubmit(false)
+    //     else if (progress.total > 0)
+    //         setDisabledSubmit(true)
+    //     else {
+    //         setDisabledSubmit(false)
 
+    //         setDisabledEditButton(true)
+    //     }
+    // }, [ exp, oldCard, progress, setDisabledSubmit])
 
     const removeFromStorage = useCallback((id) => {
         console.log(id)
         const storage = getStorage()
-        const modelRef = ref_storage(storage, `/users/${id}`)
-        deleteObject(modelRef).then(() => {
-            console.log('deleted')
-            window.location.href = '/'
-        }).catch((error) => {
-            console.log(error)
+        const storageRefs = []
+        storageRefs.push(ref_storage(storage, `/users/${id}/model`))
+        storageRefs.push(ref_storage(storage, `/users/${id}/textures/0`))
+        storageRefs.push(ref_storage(storage, `/users/${id}/textures/1`))
+        storageRefs.push(ref_storage(storage, `/users/${id}/textures/2`))
+
+        storageRefs.forEach((ref, i) => {
+            deleteObject(ref)
+                .catch((error) => {
+                    console.log(error)
+                })
+                .then(() => {
+                    if (i === storageRefs.length - 1)
+                        window.location.href = '/'
+                })
+
         })
         const db = getDatabase()
         remove(ref_database(db, `/users/${id}`))
@@ -63,9 +68,10 @@ const NavButtons = ({ card, exp, cardId, setNewModel, isNew, oldCard }) => {
     const navigate = useNavigate()
 
     const handleClickEdit = useCallback(() => {
-        if (card)
-            card.canvas.className = 'hidden-card'
-        else {
+        // if (card)
+        //     card.canvas.className = 'hidden-card'
+        // else {
+        if (!card) {
             console.log(exp, cardId, exp.files)
             exp.canvas.className = 'hidden-card'
             setNewModel({
@@ -78,9 +84,11 @@ const NavButtons = ({ card, exp, cardId, setNewModel, isNew, oldCard }) => {
     }, [navigate, cardId, card, exp, setNewModel])
 
     const handleClickBack = useCallback(() => {
-        window.scroll(0, 0)
-        if (card)
-            document.getElementById('container').appendChild(card.canvas)
+        // window.scroll(0, 0)
+        // if (card) {
+        //     card.onSelect = true
+        //     // document.getElementById('container').appendChild(card.canvas)
+        // }
         if (window.location.pathname === '/import' || isNew)
             window.location.href = '/'
         else
@@ -98,12 +106,8 @@ const NavButtons = ({ card, exp, cardId, setNewModel, isNew, oldCard }) => {
             transition={{ delay: 0.2, duration: 0.4 }}
             style={{ marginTop: '10px', left: '-50%', margin: '10px' }}>
 
-            <Button type='button' disabled={disabledEditButton} variant="contained" color="primary" onClick={handleClickEdit} >
+            <Button type='button' disabled={false} variant="contained" color="primary" onClick={handleClickEdit} >
                 Modifier
-            </Button>
-
-            <Button type='button' variant="contained" color="primary" onClick={handleClickBack} >
-                Retour
             </Button>
 
             {cardId !== '' &&
@@ -111,6 +115,10 @@ const NavButtons = ({ card, exp, cardId, setNewModel, isNew, oldCard }) => {
                     Supprimer
                 </Button>)
             }
+
+            <Button type='button' variant="contained" color="primary" onClick={handleClickBack} >
+                Retour
+            </Button>
 
         </motion.div >
     )

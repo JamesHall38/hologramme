@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@material-ui/core'
 import { useNavigate } from 'react-router-dom'
+import * as THREE from 'three'
 
 
 const Home = ({ selectedCard, setSelectedCard }) => {
@@ -10,19 +11,39 @@ const Home = ({ selectedCard, setSelectedCard }) => {
     // document.body.style.padding = '0 50px 0 50px'
     // document.body.style.overflow = 'visible'
     const containerStyle = document.getElementById('container').style
-    containerStyle.flexDirection = 'row-reverse'
+
+
+    const bodyStyle = document.body.style
+    bodyStyle.display = 'block'
+    // bodyStyle.flexDirection = 'column-reverse'
+    bodyStyle.overflow = 'hidden'
+    bodyStyle.height = '100vh'
+    // containerStyle.flexDirection = 'row-reverse'
+    // containerStyle.width = 
+
+    containerStyle.overflowX = 'scroll'
+    containerStyle.height = '100vh'
+    containerStyle.justifyContent = 'flex-start'
+
+
+
     // container.scrollTop = 0
 
     // containerStyle.position = 'absolute'
 
-    document.body.style.height = '100vh'
+    // document.body.style.height = '100vh'
 
-    if (selectedCard)
+    if (selectedCard.cards) {
+
         if (selectedCard.cards)
             selectedCard.cards.forEach(card => {
                 card.canvas.className = 'unselected'
             })
 
+        // console.log(selectedCard)
+
+        // containerStyle.width = window.innerHeight / 3 * (selectedCard.cards.length - 1) + window.innerHeight / 2
+    }
 
     const handleClickNavigate = useCallback(() => {
         navigate(`/${selectedCard.selected}`, { replace: false })
@@ -42,6 +63,10 @@ const Home = ({ selectedCard, setSelectedCard }) => {
     const handleCloseCard = useCallback(() => {
         const card = selectedCard.cards.find(card => card.onSelect === true)
         card.onSelect = false
+
+        card.world.raycaster.synchroniserLED.material.color = new THREE.Color(0x000000)
+
+
         card.sizes.cardReset()
         card.camera.instance.position.set(0, -0.25, 3)
         card.camera.removeControls()
@@ -64,7 +89,7 @@ const Home = ({ selectedCard, setSelectedCard }) => {
                 animate={{ opacity: 1, translateY: 0 }}
                 exit={{ opacity: 0, translateY: 10 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
-                style={{ position: 'fixed', bottom: '0', left: '0', margin: '10px', zIndex: '100' }}>
+                style={{ position: 'fixed', bottom: '0', left: '0', margin: '20px', zIndex: '100' }}>
                 <>
                     <Button type='button' variant="contained" color="primary" onClick={handleClick} >
                         Nouveau

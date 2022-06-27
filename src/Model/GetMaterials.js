@@ -3,7 +3,7 @@ import pako from 'pako'
 import * as THREE from 'three'
 
 
-export default function getMaterials(compressedMaterials, card) {
+export default function getMaterials(compressedMaterials, experience) {
 
     const decompressed = pako.inflate(compressedMaterials)
     console.log(compressedMaterials, decompressed)
@@ -21,44 +21,48 @@ export default function getMaterials(compressedMaterials, card) {
         console.log('gltf = ', gltf)
 
         let materials = {}
-        gltf.scene.traverse(function (child) {
-            if (child.isMesh) {
-                // materials.push(child.material)
-                materials = { ...materials, [child.material.name]: child.material }
-            }
-        })
-        card.resources.sceneGroup.traverse((child) => {
-            if (child instanceof THREE.Mesh && child.material.name !== 'White') {
+        if (gltf.scene) {
 
-                console.log(materials, child.material.name)
-                if (materials[child.material.name].map)
-                    child.material.map = materials[child.material.name].map
-                if (materials[child.material.name].alphaMap)
-                    child.material.alphaMap = materials[child.material.name].alphaMap
-                if (materials[child.material.name].aoMap)
-                    child.material.aoMap = materials[child.material.name].aoMap
-                if (materials[child.material.name].bumpMap)
-                    child.material.bumpMap = materials[child.material.name].bumpMap
-                if (materials[child.material.name].displacementMap)
-                    child.material.displacementMap = materials[child.material.name].displacementMap
-                if (materials[child.material.name].emissiveMap)
-                    child.material.emissiveMap = materials[child.material.name].emissiveMap
-                if (materials[child.material.name].envMap)
-                    child.material.envMap = materials[child.material.name].envMap
-                if (materials[child.material.name].lightMap)
-                    child.material.lightMap = materials[child.material.name].lightMap
-                if (materials[child.material.name].metalnessMap)
-                    child.material.metalnessMap = materials[child.material.name].metalnessMap
-                if (materials[child.material.name].normalMap)
-                    child.material.normalMap = materials[child.material.name].normalMap
-                if (materials[child.material.name].roughnessMap)
-                    child.material.roughnessMap = materials[child.material.name].roughnessMap
+            gltf.scene.traverse(function (child) {
+                if (child.isMesh) {
+                    // materials.push(child.material)
+                    materials = { ...materials, [child.material.name]: child.material }
+                }
+            })
+            experience.resources.sceneGroup.scene.traverse((child) => {
+                if (child instanceof THREE.Mesh && child.material.name !== 'White') {
 
-                child.material.needsUpdate = true
-            }
-        })
+                    if (materials[child.material.name]) {
+                        if (materials[child.material.name].map
+                            || materials[child.material.name].alphaMap
+                            || materials[child.material.name].aoMap
+                            || materials[child.material.name].bumpMap
+                            || materials[child.material.name].displacementMap
+                            || materials[child.material.name].emissiveMap
+                            || materials[child.material.name].envMap
+                            || materials[child.material.name].lightMap
+                            || materials[child.material.name].metalnessMap
+                            || materials[child.material.name].normalMap
+                            || materials[child.material.name].roughnessMap) {
+
+                            child.material.map = materials[child.material.name].map
+                            child.material.alphaMap = materials[child.material.name].alphaMap
+                            child.material.aoMap = materials[child.material.name].aoMap
+                            child.material.bumpMap = materials[child.material.name].bumpMap
+                            child.material.displacementMap = materials[child.material.name].displacementMap
+                            child.material.emissiveMap = materials[child.material.name].emissiveMap
+                            child.material.envMap = materials[child.material.name].envMap
+                            child.material.lightMap = materials[child.material.name].lightMap
+                            child.material.metalnessMap = materials[child.material.name].metalnessMap
+                            child.material.normalMap = materials[child.material.name].normalMap
+                            child.material.roughnessMap = materials[child.material.name].roughnessMap
+                        }
+                    }
+                    child.material.needsUpdate = true
+                }
+            })
+            experience.time.trigger('tick')
+        }
     })
-
-    card.resources.trigger('materialsReady')
 
 }
